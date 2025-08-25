@@ -30,23 +30,6 @@ Repository = "https://github.com/wyatt-avilla/sjsu-cmpe180b-f25"
 line-length = 88
 indent-width = 4
 
-target-version = "py312"
-
-select = [
-    "E",  
-    "W",  
-    "F",  
-    "I",  
-    "B",  
-    "C4", 
-    "UP", 
-    "SIM",
-]
-
-ignore = [
-    "E501",
-]
-
 exclude = [
     ".git",
     ".mypy_cache",
@@ -58,6 +41,30 @@ exclude = [
     "build",
 ]
 
+
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  
+    "W",  
+    "F",  
+    "I",  
+    "B",  
+    "C4", 
+    "T", 
+    "UP", 
+    "SIM",
+]
+
+ignore = [
+    "E501",
+]
+
+[isort]
+known-first-party = ["sjsu_cmpe180b_f25"]
+force-sort-within-sections = true
+
 [tool.ruff.format]
 quote-style = "double"
 
@@ -66,7 +73,3 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 
 line-ending = "lf"
-
-[tool.ruff.isort]
-known-first-party = ["sjsu_cmpe180b_f25"]
-force-sort-within-sections = true
