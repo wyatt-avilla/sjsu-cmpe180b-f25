@@ -18,3 +18,41 @@ jobs:
         uses: astral-sh/ruff-action@v3
         with:
           args: "format --check --diff"
+
+  yaml:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install Prettier
+        run: npm install --global prettier
+
+      - name: Check YAML/YML formatting
+        run: prettier --check "**/*.{yml,yaml}"
+
+  markdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install Prettier
+        run: npm install --global prettier
+
+      - name: Check Markdown formatting
+        run: prettier --check "**/*.md"
