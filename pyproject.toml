@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sjsu-cmpe180b-f25"
+version = "0.1.0"
+description = "A project for CMPE-180B at SJSU in Fall 2025"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    {name = "Wyatt Avilla", email = "wyatt.avilla@sjsu.edu"},
+    {name = "Ray Zhao", email = "ray.zhao@sjsu.edu"},
+    {name = "Ling Zhao", email = "ling.zhao@sjsu.edu"},
+]
+
+dependencies = [ ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/wyatt-avilla/sjsu-cmpe180b-f25"
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+target-version = "py312"
+
+select = [
+    "E",  
+    "W",  
+    "F",  
+    "I",  
+    "B",  
+    "C4", 
+    "UP", 
+    "SIM",
+]
+
+ignore = [
+    "E501",
+]
+
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pypackages__",
+    "build",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+indent-style = "space"
+
+skip-magic-trailing-comma = false
+
+line-ending = "lf"
+
+[tool.ruff.isort]
+known-first-party = ["sjsu_cmpe180b_f25"]
+force-sort-within-sections = true
