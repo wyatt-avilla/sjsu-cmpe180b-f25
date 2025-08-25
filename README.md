@@ -18,3 +18,5 @@ pip install ".[dev]" # install development dependencies (linters, formatters, et
 
 Prettier isn't available on PyPi, so use its
 [installation instructions](https://prettier.io/docs/install.html) instead.
+
+Change.
