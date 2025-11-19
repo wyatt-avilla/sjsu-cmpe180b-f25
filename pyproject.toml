@@ -28,6 +28,9 @@ dev = [
 [project.urls]
 Repository = "https://github.com/wyatt-avilla/sjsu-cmpe180b-f25"
 
+[tool.setuptools]
+packages = ["sjsu_cmpe180b_f25"]
+
 [tool.ruff]
 line-length = 88
 indent-width = 4
@@ -42,7 +45,6 @@ exclude = [
     "__pypackages__",
     "build",
 ]
-
 
 target-version = "py312"
 
