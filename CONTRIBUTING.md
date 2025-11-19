@@ -2,18 +2,22 @@
 
 ## Dependencies
 
+> [!NOTE]  
+> The development environment is structured with
+> [`uv`](https://github.com/astral-sh/uv) in mind, but `pip` can also be used.
+
 Initialize a virtual environment first if needed:
 
 ```sh
-python -m venv .venv
+uv venv
 source ./.venv/bin/activate
 ```
 
 Then install the dependencies:
 
 ```sh
-pip install .        # install only necessary dependencies
-pip install ".[dev]" # install development dependencies (linters, formatters, etc.)
+uv pip install .        # install only necessary dependencies
+uv pip install ".[dev]" # install development dependencies (linters, etc.)
 ```
 
 ## CI
