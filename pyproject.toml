@@ -14,7 +14,9 @@ authors = [
     {name = "Ling Zhao", email = "ling.zhao@sjsu.edu"},
 ]
 
-dependencies = [ ]
+dependencies = [
+ "sqlalchemy>=2.0.44",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -43,6 +45,11 @@ exclude = [
 
 
 target-version = "py312"
+
+[tool.mypy]
+plugins = [
+	"sqlalchemy.ext.mypy.plugin",
+]
 
 [tool.ruff.lint]
 select = [
