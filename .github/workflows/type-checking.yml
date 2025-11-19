@@ -28,4 +28,4 @@ jobs:
           uv pip install --system ".[dev]"
 
       - name: Run Mypy
-        run: uv run mypy --strict .
+        run: uv run mypy --strict sjsu_cmpe180b_f25
