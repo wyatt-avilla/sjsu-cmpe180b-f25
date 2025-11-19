@@ -18,14 +18,13 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-
-      - name: Set up Python
-        run: uv python install 3.12
+          python-version: "3.12"
+          activate-environment: "true"
 
       - name: Install dependencies
         run: |
-          uv pip install --system .
-          uv pip install --system ".[dev]"
+          uv pip install .
+          uv pip install ".[dev]"
 
       - name: Run Mypy
         run: uv run mypy --strict sjsu_cmpe180b_f25
