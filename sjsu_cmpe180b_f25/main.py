@@ -8,7 +8,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def extra_unused_function() -> None:
+def extra_unused_function():
     pass
 
 
