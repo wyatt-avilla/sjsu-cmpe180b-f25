@@ -44,3 +44,10 @@ For the specific commands being run, examine the
 | Language | Tool                                     |
 | -------- | ---------------------------------------- |
 | Python   | [`mypy`](https://github.com/python/mypy) |
+
+## Releases
+
+Releases are created automatically
+[via an action](https://github.com/wyatt-avilla/sjsu-cmpe180b-f25/blob/main/.github/workflows/release.yml)
+when the project's version is changed in
+[`pyproject.toml`](https://github.com/wyatt-avilla/sjsu-cmpe180b-f25/blob/main/pyproject.toml).
