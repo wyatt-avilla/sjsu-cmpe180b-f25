@@ -8,6 +8,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def extra_unused_function() -> None:
+    pass
+
+
 def main() -> None:
     logger.info("hello world")
 
