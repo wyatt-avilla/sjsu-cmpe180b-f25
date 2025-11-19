@@ -3,22 +3,3 @@
 ![Python Version](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fwyatt-avilla%2Fsjsu-cmpe180b-f25%2Frefs%2Fheads%2Fmain%2Fpyproject.toml)
 ![Ruff](https://img.shields.io/badge/Ruff-Check-34223D?logo=ruff)
 ![MyPy](https://img.shields.io/badge/Mypy-Check-blue?logo=python)
-
-## Dependencies
-
-Initialize a virtual environment first if needed:
-
-```sh
-python -m venv .venv
-source ./.venv/bin/activate
-```
-
-Then install the dependencies:
-
-```sh
-pip install . # install only necessary dependencies
-pip install ".[dev]" # install development dependencies (linters, formatters, etc.)
-```
-
-Prettier isn't available on PyPi, so use its
-[installation instructions](https://prettier.io/docs/install.html) instead.
