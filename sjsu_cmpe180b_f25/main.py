@@ -1,16 +1,23 @@
 import logging
+from collections.abc import Sequence
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(levelname)s][%(asctime)s][%(name)s] %(message)s",
-)
-
-logger = logging.getLogger(__name__)
+from .clap import parse_args
 
 
-def main() -> None:
-    logger.info("hello world")
+def main(argv: Sequence[str] | None = None) -> None:
+    cli_args = parse_args(argv)
+
+    logging.basicConfig(
+        level=cli_args.log_level,
+        format="[%(levelname)s][%(asctime)s][%(name)s] %(message)s",
+    )
+
+    logging.getLogger(__name__).info(f"Utilizing log level '{cli_args.log_level}'")
+
+
+def cli(argv: Sequence[str] | None = None) -> None:
+    main(argv)
 
 
 if __name__ == "__main__":
-    main()
+    cli()

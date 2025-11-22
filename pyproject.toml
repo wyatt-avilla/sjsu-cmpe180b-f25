@@ -18,6 +18,9 @@ dependencies = [
  "sqlalchemy>=2.0.44",
 ]
 
+[project.scripts]
+app = "sjsu_cmpe180b_f25.main:cli"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
