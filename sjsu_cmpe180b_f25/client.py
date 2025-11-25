@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from typing import TypeVar
+
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Book, Fine, Loan, Member
+from .models import Author, Base, Book, Fine, Loan, Member
+
+M = TypeVar("M", Author, Book, Member, Loan, Fine)
 
 
 class Client:
@@ -22,21 +26,33 @@ class Client:
             expire_on_commit=False,
         )
 
+    async def __generic_create(self, model: M) -> M | None:
+        async with self.__session_factory() as db:
+            db.add(model)
+            try:
+                await db.commit()
+                await db.refresh(model)
+                return model
+            except Exception:
+                await db.rollback()
+                return None
+
+    async def create_tables(self) -> None:
+        async with self.__engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
     async def create_author(
         self,
         *,
         id: int,
         name: str,
-    ) -> Author:
-        async with self.__session_factory() as db:
-            author = Author(
-                id=id,
-                name=name,
-            )
-            db.add(author)
-            await db.commit()
-            await db.refresh(author)
-            return author
+    ) -> Author | None:
+        """Creates an author, returning the author or None if it exists."""
+        author = Author(
+            id=id,
+            name=name,
+        )
+        return await self.__generic_create(author)
 
     async def create_book(
         self,
@@ -44,17 +60,14 @@ class Client:
         id: int,
         title: str,
         author_id: int,
-    ) -> Book:
-        async with self.__session_factory() as db:
-            book = Book(
-                id=id,
-                title=title,
-                author_id=author_id,
-            )
-            db.add(book)
-            await db.commit()
-            await db.refresh(book)
-            return book
+    ) -> Book | None:
+        """Creates a book, returning the book or None if it exists."""
+        book = Book(
+            id=id,
+            title=title,
+            author_id=author_id,
+        )
+        return await self.__generic_create(book)
 
     async def create_member(
         self,
@@ -62,17 +75,14 @@ class Client:
         id: int,
         name: str,
         email: str,
-    ) -> Member:
-        async with self.__session_factory() as db:
-            member = Member(
-                id=id,
-                name=name,
-                email=email,
-            )
-            db.add(member)
-            await db.commit()
-            await db.refresh(member)
-            return member
+    ) -> Member | None:
+        """Creates a member, returning the member or None if it exists."""
+        member = Member(
+            id=id,
+            name=name,
+            email=email,
+        )
+        return await self.__generic_create(member)
 
     async def create_loan(
         self,
@@ -82,19 +92,16 @@ class Client:
         member_id: int,
         loan_date: str,
         return_date: str | None = None,
-    ) -> Loan:
-        async with self.__session_factory() as db:
-            loan = Loan(
-                id=id,
-                book_id=book_id,
-                member_id=member_id,
-                loan_date=loan_date,
-                return_date=return_date,
-            )
-            db.add(loan)
-            await db.commit()
-            await db.refresh(loan)
-            return loan
+    ) -> Loan | None:
+        """Creates a loan, returning the loan or None if it exists."""
+        loan = Loan(
+            id=id,
+            book_id=book_id,
+            member_id=member_id,
+            loan_date=loan_date,
+            return_date=return_date,
+        )
+        return await self.__generic_create(loan)
 
     async def create_fine(
         self,
@@ -103,15 +110,12 @@ class Client:
         member_id: int,
         amount: float,
         paid: bool = False,
-    ) -> Fine:
-        async with self.__session_factory() as db:
-            fine = Fine(
-                id=id,
-                member_id=member_id,
-                amount=amount,
-                paid=paid,
-            )
-            db.add(fine)
-            await db.commit()
-            await db.refresh(fine)
-            return fine
+    ) -> Fine | None:
+        """Creates a fine, returning the fine or None if it exists."""
+        fine = Fine(
+            id=id,
+            member_id=member_id,
+            amount=amount,
+            paid=paid,
+        )
+        return await self.__generic_create(fine)

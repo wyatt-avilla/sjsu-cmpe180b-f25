@@ -64,7 +64,12 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = pkgs.mkShell { buildInputs = with pkgs; [ uv ]; };
+          default = pkgs.mkShell {
+            buildInputs = with pkgs; [ uv ];
+            env = {
+              LD_LIBRARY_PATH = lib.makeLibraryPath [ pkgs.stdenv.cc.cc ];
+            };
+          };
         }
       );
 
