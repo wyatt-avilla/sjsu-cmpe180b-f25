@@ -1,10 +1,11 @@
+import asyncio
 import logging
 from collections.abc import Sequence
 
 from .clap import parse_args
 
 
-def main(argv: Sequence[str] | None = None) -> None:
+async def main(argv: Sequence[str] | None = None) -> None:
     cli_args = parse_args(argv)
 
     logging.basicConfig(
@@ -16,7 +17,7 @@ def main(argv: Sequence[str] | None = None) -> None:
 
 
 def cli(argv: Sequence[str] | None = None) -> None:
-    main(argv)
+    asyncio.run(main(argv))
 
 
 if __name__ == "__main__":
