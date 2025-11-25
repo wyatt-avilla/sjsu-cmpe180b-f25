@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import TypeVar
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from .models import Author, Base, Book, Fine, Loan, Member
@@ -34,7 +36,8 @@ class Client:
                 await db.commit()
                 await db.refresh(model)
                 return model
-            except Exception:
+            except IntegrityError as e:
+                logging.getLogger(__name__).warn(f"Unable to create '{model}' {(e)}")
                 await db.rollback()
                 return None
 
