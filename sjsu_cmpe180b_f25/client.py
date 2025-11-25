@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from .models import Book
+
 
 class Client:
     def __init__(self, database_url: str) -> None:
@@ -19,3 +21,21 @@ class Client:
             autocommit=False,
             expire_on_commit=False,
         )
+
+    async def create_book(
+        self,
+        *,
+        id: int,
+        title: str,
+        author_id: int,
+    ) -> Book:
+        async with self.__session_factory() as db:
+            book = Book(
+                id=id,
+                title=title,
+                author_id=author_id,
+            )
+            db.add(book)
+            await db.commit()
+            await db.refresh(book)
+            return book
