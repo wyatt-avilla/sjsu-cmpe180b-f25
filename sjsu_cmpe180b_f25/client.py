@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Book, Fine, Loan, Member
+from .models import Author, Base, Book, Fine, Loan, Member
 
 
 class Client:
@@ -21,6 +21,10 @@ class Client:
             autocommit=False,
             expire_on_commit=False,
         )
+
+    async def create_tables(self) -> None:
+        async with self.__engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
 
     async def create_author(
         self,
