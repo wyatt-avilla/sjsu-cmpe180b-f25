@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TypeVar
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -90,8 +91,8 @@ class Client:
         id: int,
         book_id: int,
         member_id: int,
-        loan_date: str,
-        return_date: str | None = None,
+        loan_date: datetime,
+        return_date: datetime | None = None,
     ) -> Loan | None:
         """Creates a loan, returning the loan or None if it exists."""
         loan = Loan(

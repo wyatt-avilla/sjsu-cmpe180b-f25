@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -31,8 +33,8 @@ class Loan(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     book_id: Mapped[int] = mapped_column(ForeignKey("books.id"), nullable=False)
     member_id: Mapped[int] = mapped_column(ForeignKey("members.id"), nullable=False)
-    loan_date: Mapped[str] = mapped_column(nullable=False)
-    return_date: Mapped[str] = mapped_column(nullable=True)
+    loan_date: Mapped[datetime] = mapped_column(nullable=False)
+    return_date: Mapped[datetime] = mapped_column(nullable=True)
 
 
 class Fine(Base):
