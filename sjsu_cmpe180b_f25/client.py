@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Book
+from .models import Author, Book
 
 
 class Client:
@@ -21,6 +21,22 @@ class Client:
             autocommit=False,
             expire_on_commit=False,
         )
+
+    async def create_author(
+        self,
+        *,
+        id: int,
+        name: str,
+    ) -> Author:
+        async with self.__session_factory() as db:
+            author = Author(
+                id=id,
+                name=name,
+            )
+            db.add(author)
+            await db.commit()
+            await db.refresh(author)
+            return author
 
     async def create_book(
         self,
