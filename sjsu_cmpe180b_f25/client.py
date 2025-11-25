@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Book, Member, Loan
+from .models import Author, Book, Fine, Loan, Member
 
 
 class Client:
@@ -95,3 +95,23 @@ class Client:
             await db.commit()
             await db.refresh(loan)
             return loan
+
+    async def create_fine(
+        self,
+        *,
+        id: int,
+        member_id: int,
+        amount: float,
+        paid: bool = False,
+    ) -> Fine:
+        async with self.__session_factory() as db:
+            fine = Fine(
+                id=id,
+                member_id=member_id,
+                amount=amount,
+                paid=paid,
+            )
+            db.add(fine)
+            await db.commit()
+            await db.refresh(fine)
+            return fine
