@@ -43,3 +43,11 @@ class Fine(Base):
     member_id: Mapped[int] = mapped_column(ForeignKey("members.id"), nullable=False)
     amount: Mapped[float] = mapped_column(nullable=False)
     paid: Mapped[bool] = mapped_column(nullable=False, default=False)
+
+
+class Reservation(Base):
+    __tablename__ = "reservations"
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    book_id: Mapped[int] = mapped_column(ForeignKey("books.id"), nullable=False)
+    member_id: Mapped[int] = mapped_column(ForeignKey("members.id"), nullable=False)
+    requested_at: Mapped[datetime] = mapped_column(nullable=False)
