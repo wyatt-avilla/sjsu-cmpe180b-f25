@@ -64,7 +64,7 @@ class Client:
     ) -> Author | None:
         """Creates an author, returning the author or None if it exists."""
         author = Author(
-            id=id,
+            author_id=id,
             name=name,
         )
         return await self.__generic_create(author)
