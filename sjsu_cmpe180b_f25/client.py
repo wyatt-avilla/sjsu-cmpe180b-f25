@@ -93,15 +93,17 @@ class Client:
     async def create_member(
         self,
         *,
-        id: int,
+        member_id: int,
         name: str,
         email: str,
+        joined_at: datetime,
     ) -> Member | None:
         """Creates a member, returning the member or None if it exists."""
         member = Member(
-            id=id,
+            member_id=id,
             name=name,
             email=email,
+            joined_at=joined_at,
         )
         return await self.__generic_create(member)
 
