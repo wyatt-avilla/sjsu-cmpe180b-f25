@@ -7,7 +7,7 @@ from typing import TypeVar
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Base, Book, BookAuthor, Copy, Fine, Loan, Member
+from .models import Author, Base, Book, BookAuthor, Copy, CopyStatus, Fine, Loan, Member
 
 M = TypeVar("M", Author, Book, BookAuthor, Copy, Fine, Loan, Member)
 
@@ -106,6 +106,21 @@ class Client:
             joined_at=joined_at,
         )
         return await self.__generic_create(member)
+
+    async def create_copy(
+        self,
+        *,
+        copy_id: int,
+        book_id: int,
+        status: CopyStatus,
+    ) -> Copy | None:
+        """Creates a copy, returning the copy or None if it exists."""
+        copy = Copy(
+            copy_id=copy_id,
+            book_id=book_id,
+            status=status,
+        )
+        return await self.__generic_create(copy)
 
     async def create_loan(
         self,
