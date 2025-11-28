@@ -159,16 +159,22 @@ class Client:
     async def create_fine(
         self,
         *,
-        id: int,
+        fine_id: int,
         member_id: int,
+        loan_id: int,
         amount: float,
+        assessed_at: datetime,
         paid: bool = False,
+        paid_at: datetime | None = None,
     ) -> Fine | None:
         """Creates a fine, returning the fine or None if it exists."""
         fine = Fine(
-            id=id,
+            fine_id=fine_id,
             member_id=member_id,
+            loan_id=loan_id,
             amount=amount,
+            assessed_at=assessed_at,
             paid=paid,
+            paid_at=paid_at,
         )
         return await self.__generic_create(fine)
