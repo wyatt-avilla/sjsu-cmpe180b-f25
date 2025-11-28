@@ -77,6 +77,19 @@ class Client:
         )
         return await self.__generic_create(book)
 
+    async def create_book_author(
+        self,
+        *,
+        book_id: int,
+        author_id: int,
+    ) -> BookAuthor | None:
+        """Creates a book-author relationship, returning it or None if it exists."""
+        book_author = BookAuthor(
+            book_id=book_id,
+            author_id=author_id,
+        )
+        return await self.__generic_create(book_author)
+
     async def create_member(
         self,
         *,
