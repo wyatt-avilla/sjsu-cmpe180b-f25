@@ -111,7 +111,7 @@ class Client:
     ) -> Member | None:
         """Creates a member, returning the member or None if it exists."""
         member = Member(
-            member_id=id,
+            member_id=member_id,
             name=name,
             email=email,
             joined_at=joined_at,
