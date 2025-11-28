@@ -7,9 +7,20 @@ from typing import TypeVar
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Base, Book, Fine, Loan, Member, Reservation
+from .models import (
+    Author,
+    Base,
+    Book,
+    BookAuthor,
+    Copy,
+    CopyStatus,
+    Fine,
+    Loan,
+    LoanStatus,
+    Member,
+)
 
-M = TypeVar("M", Author, Book, Member, Loan, Fine, Reservation)
+M = TypeVar("M", Author, Book, BookAuthor, Copy, Fine, Loan, Member)
 
 
 class Client:
@@ -53,7 +64,7 @@ class Client:
     ) -> Author | None:
         """Creates an author, returning the author or None if it exists."""
         author = Author(
-            id=id,
+            author_id=id,
             name=name,
         )
         return await self.__generic_create(author)
@@ -61,82 +72,109 @@ class Client:
     async def create_book(
         self,
         *,
-        id: int,
+        book_id: int,
         title: str,
-        author_id: int,
+        isbn: str | None = None,
+        published_year: int | None = None,
+        genre: str | None = None,
     ) -> Book | None:
         """Creates a book, returning the book or None if it exists."""
         book = Book(
-            id=id,
+            book_id=book_id,
             title=title,
-            author_id=author_id,
+            isbn=isbn,
+            published_year=published_year,
+            genre=genre,
         )
         return await self.__generic_create(book)
+
+    async def create_book_author(
+        self,
+        *,
+        book_id: int,
+        author_id: int,
+    ) -> BookAuthor | None:
+        """Creates a book-author relationship, returning it or None if it exists."""
+        book_author = BookAuthor(
+            book_id=book_id,
+            author_id=author_id,
+        )
+        return await self.__generic_create(book_author)
 
     async def create_member(
         self,
         *,
-        id: int,
+        member_id: int,
         name: str,
         email: str,
+        joined_at: datetime,
     ) -> Member | None:
         """Creates a member, returning the member or None if it exists."""
         member = Member(
-            id=id,
+            member_id=member_id,
             name=name,
             email=email,
+            joined_at=joined_at,
         )
         return await self.__generic_create(member)
+
+    async def create_copy(
+        self,
+        *,
+        copy_id: int,
+        book_id: int,
+        status: CopyStatus,
+    ) -> Copy | None:
+        """Creates a copy, returning the copy or None if it exists."""
+        copy = Copy(
+            copy_id=copy_id,
+            book_id=book_id,
+            status=status,
+        )
+        return await self.__generic_create(copy)
 
     async def create_loan(
         self,
         *,
-        id: int,
-        book_id: int,
+        loan_id: int,
+        copy_id: int,
         member_id: int,
         loan_date: datetime,
+        due_date: datetime,
+        status: LoanStatus,
         return_date: datetime | None = None,
     ) -> Loan | None:
         """Creates a loan, returning the loan or None if it exists."""
         loan = Loan(
-            id=id,
-            book_id=book_id,
+            loan_id=loan_id,
+            copy_id=copy_id,
             member_id=member_id,
             loan_date=loan_date,
+            due_date=due_date,
             return_date=return_date,
+            status=status,
         )
         return await self.__generic_create(loan)
 
     async def create_fine(
         self,
         *,
-        id: int,
+        fine_id: int,
         member_id: int,
+        loan_id: int,
         amount: float,
+        assessed_at: datetime,
         paid: bool = False,
+        paid_at: datetime | None = None,
     ) -> Fine | None:
         """Creates a fine, returning the fine or None if it exists."""
         fine = Fine(
-            id=id,
+            fine_id=fine_id,
             member_id=member_id,
+            loan_id=loan_id,
             amount=amount,
+            assessed_at=assessed_at,
             paid=paid,
+            paid_at=paid_at,
         )
         return await self.__generic_create(fine)
-
-    async def create_reservation(
-        self,
-        *,
-        id: int,
-        book_id: int,
-        member_id: int,
-        requested_at: datetime,
-    ) -> Reservation | None:
-        """Creates a reservation, returning the reservation or None if it exists."""
-        reservation = Reservation(
-            id=id,
-            book_id=book_id,
-            member_id=member_id,
-            requested_at=requested_at,
-        )
-        return await self.__generic_create(reservation)
