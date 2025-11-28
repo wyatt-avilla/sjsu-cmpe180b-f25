@@ -15,6 +15,12 @@ class CopyStatus(str, Enum):
     LOST = "lost"
 
 
+class LoanStatus(str, Enum):
+    ACTIVE = "active"
+    RETURNED = "returned"
+    OVERDUE = "overdue"
+
+
 class Author(Base):
     __tablename__ = "authors"
     author_id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -63,7 +69,7 @@ class Loan(Base):
     loan_date: Mapped[datetime] = mapped_column(nullable=False)
     due_date: Mapped[datetime] = mapped_column(nullable=False)
     return_date: Mapped[datetime | None] = mapped_column(nullable=True)
-    status: Mapped[str] = mapped_column(nullable=False, default="active")
+    status: Mapped[LoanStatus] = mapped_column(nullable=False)
 
 
 class Fine(Base):

@@ -7,7 +7,18 @@ from typing import TypeVar
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Base, Book, BookAuthor, Copy, CopyStatus, Fine, Loan, Member
+from .models import (
+    Author,
+    Base,
+    Book,
+    BookAuthor,
+    Copy,
+    CopyStatus,
+    Fine,
+    Loan,
+    LoanStatus,
+    Member,
+)
 
 M = TypeVar("M", Author, Book, BookAuthor, Copy, Fine, Loan, Member)
 
@@ -125,19 +136,23 @@ class Client:
     async def create_loan(
         self,
         *,
-        id: int,
-        book_id: int,
+        loan_id: int,
+        copy_id: int,
         member_id: int,
         loan_date: datetime,
+        due_date: datetime,
+        status: LoanStatus,
         return_date: datetime | None = None,
     ) -> Loan | None:
         """Creates a loan, returning the loan or None if it exists."""
         loan = Loan(
-            id=id,
-            book_id=book_id,
+            loan_id=loan_id,
+            copy_id=copy_id,
             member_id=member_id,
             loan_date=loan_date,
+            due_date=due_date,
             return_date=return_date,
+            status=status,
         )
         return await self.__generic_create(loan)
 
