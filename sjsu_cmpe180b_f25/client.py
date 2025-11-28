@@ -7,9 +7,9 @@ from typing import TypeVar
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from .models import Author, Base, Book, Fine, Loan, Member
+from .models import Author, Base, Book, BookAuthor, Copy, Fine, Loan, Member
 
-M = TypeVar("M", Author, Book, Member, Loan, Fine)
+M = TypeVar("M", Author, Book, BookAuthor, Copy, Fine, Loan, Member)
 
 
 class Client:
@@ -61,15 +61,19 @@ class Client:
     async def create_book(
         self,
         *,
-        id: int,
+        book_id: int,
         title: str,
-        author_id: int,
+        isbn: str | None = None,
+        published_year: int | None = None,
+        genre: str | None = None,
     ) -> Book | None:
         """Creates a book, returning the book or None if it exists."""
         book = Book(
-            id=id,
+            book_id=book_id,
             title=title,
-            author_id=author_id,
+            isbn=isbn,
+            published_year=published_year,
+            genre=genre,
         )
         return await self.__generic_create(book)
 
