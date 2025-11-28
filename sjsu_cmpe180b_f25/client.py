@@ -178,20 +178,3 @@ class Client:
             paid_at=paid_at,
         )
         return await self.__generic_create(fine)
-
-    async def create_reservation(
-        self,
-        *,
-        id: int,
-        book_id: int,
-        member_id: int,
-        requested_at: datetime,
-    ) -> Reservation | None:
-        """Creates a reservation, returning the reservation or None if it exists."""
-        reservation = Reservation(
-            id=id,
-            book_id=book_id,
-            member_id=member_id,
-            requested_at=requested_at,
-        )
-        return await self.__generic_create(reservation)
