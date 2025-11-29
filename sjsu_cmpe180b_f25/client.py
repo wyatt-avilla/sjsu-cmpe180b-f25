@@ -218,3 +218,44 @@ class Client:
                 )
                 await db.rollback()
                 return None
+
+    async def end_loan(
+        self,
+        *,
+        loan_id: int,
+    ) -> bool:
+        """Ends a loan, returning True if successful, False otherwise."""
+        async with self.__session_factory() as db:
+            stmt = select(Loan).where(Loan.loan_id == loan_id).with_for_update()
+            result = await db.execute(stmt)
+            loan = result.scalar_one_or_none()
+
+            if not loan or loan.status != LoanStatus.ACTIVE:
+                logging.getLogger(__name__).warning(
+                    f"Loan '{loan_id}' is not active and cannot be ended."
+                )
+                return False
+
+            stmt = select(Copy).where(Copy.copy_id == loan.copy_id).with_for_update()
+            result = await db.execute(stmt)
+            copy = result.scalar_one_or_none()
+
+            if not copy:
+                logging.getLogger(__name__).error(
+                    f"Copy '{loan.copy_id}' associated with loan '{loan_id}' not found."
+                )
+                return False
+
+            loan.return_date = datetime.utcnow()
+            loan.status = LoanStatus.RETURNED
+            copy.status = CopyStatus.AVAILABLE
+
+            try:
+                await db.commit()
+                return True
+            except IntegrityError as e:
+                logging.getLogger(__name__).error(
+                    f"Unable to end loan '{loan_id}': {e}"
+                )
+                await db.rollback()
+                return False
