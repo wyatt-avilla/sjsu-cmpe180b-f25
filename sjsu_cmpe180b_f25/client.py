@@ -226,8 +226,9 @@ class Client:
     ) -> bool:
         """Ends a loan, returning True if successful, False otherwise."""
         async with self.__session_factory() as db:
-            stmt = select(Loan).where(Loan.loan_id == loan_id).with_for_update()
-            result = await db.execute(stmt)
+            result = await db.execute(
+                select(Loan).where(Loan.loan_id == loan_id).with_for_update()
+            )
             loan = result.scalar_one_or_none()
 
             if not loan or loan.status != LoanStatus.ACTIVE:
@@ -236,8 +237,9 @@ class Client:
                 )
                 return False
 
-            stmt = select(Copy).where(Copy.copy_id == loan.copy_id).with_for_update()
-            result = await db.execute(stmt)
+            result = await db.execute(
+                select(Copy).where(Copy.copy_id == loan.copy_id).with_for_update()
+            )
             copy = result.scalar_one_or_none()
 
             if not copy:
