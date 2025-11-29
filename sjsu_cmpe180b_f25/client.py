@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import TypeVar
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -178,3 +179,115 @@ class Client:
             paid_at=paid_at,
         )
         return await self.__generic_create(fine)
+
+    async def request_loan(
+        self,
+        *,
+        copy_id: int,
+        member_id: int,
+    ) -> Loan | None:
+        """Requests a loan for a copy by a member, returning the loan or None if not possible."""
+        async with self.__session_factory() as db:
+            stmt = select(Copy).where(Copy.copy_id == copy_id).with_for_update()
+            result = await db.execute(stmt)
+            copy = result.scalar_one_or_none()
+
+            if not copy or copy.status != CopyStatus.AVAILABLE:
+                logging.getLogger(__name__).warning(
+                    f"Copy '{copy_id}' is not available for loan."
+                )
+                return None
+
+            loan = Loan(
+                copy_id=copy_id,
+                member_id=member_id,
+                loan_date=datetime.utcnow(),
+                due_date=datetime.utcnow() + timedelta(days=14),
+                status=LoanStatus.ACTIVE,
+            )
+            db.add(loan)
+            copy.status = CopyStatus.ON_LOAN
+
+            try:
+                await db.commit()
+                await db.refresh(loan)
+                return loan
+            except IntegrityError as e:
+                logging.getLogger(__name__).warning(
+                    f"Unable to create loan for copy '{copy_id}' to member '{member_id}': {e}"
+                )
+                await db.rollback()
+                return None
+
+    async def end_loan(
+        self,
+        *,
+        loan_id: int,
+    ) -> bool:
+        """Ends a loan, returning True if successful, False otherwise."""
+        async with self.__session_factory() as db:
+            loan_result = await db.execute(
+                select(Loan).where(Loan.loan_id == loan_id).with_for_update()
+            )
+            loan = loan_result.scalar_one_or_none()
+
+            if not loan or loan.status != LoanStatus.ACTIVE:
+                logging.getLogger(__name__).warning(
+                    f"Loan '{loan_id}' is not active and cannot be ended."
+                )
+                return False
+
+            copy_result = await db.execute(
+                select(Copy).where(Copy.copy_id == loan.copy_id).with_for_update()
+            )
+            copy = copy_result.scalar_one_or_none()
+
+            if not copy:
+                logging.getLogger(__name__).error(
+                    f"Copy '{loan.copy_id}' associated with loan '{loan_id}' not found."
+                )
+                return False
+
+            loan.return_date = datetime.utcnow()
+            loan.status = LoanStatus.RETURNED
+            copy.status = CopyStatus.AVAILABLE
+
+            try:
+                await db.commit()
+                return True
+            except IntegrityError as e:
+                logging.getLogger(__name__).error(
+                    f"Unable to end loan '{loan_id}': {e}"
+                )
+                await db.rollback()
+                return False
+
+    async def pay_fine(
+        self,
+        *,
+        fine_id: int,
+    ) -> bool:
+        """Pays a fine, returning True if successful, False otherwise."""
+        async with self.__session_factory() as db:
+            stmt = select(Fine).where(Fine.fine_id == fine_id).with_for_update()
+            result = await db.execute(stmt)
+            fine = result.scalar_one_or_none()
+
+            if not fine or fine.paid:
+                logging.getLogger(__name__).warning(
+                    f"Fine '{fine_id}' is either not found or already paid."
+                )
+                return False
+
+            fine.paid = True
+            fine.paid_at = datetime.utcnow()
+
+            try:
+                await db.commit()
+                return True
+            except IntegrityError as e:
+                logging.getLogger(__name__).error(
+                    f"Unable to pay fine '{fine_id}': {e}"
+                )
+                await db.rollback()
+                return False
