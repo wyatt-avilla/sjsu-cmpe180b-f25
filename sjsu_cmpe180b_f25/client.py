@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import TypeVar
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -178,3 +179,42 @@ class Client:
             paid_at=paid_at,
         )
         return await self.__generic_create(fine)
+
+    async def request_loan(
+        self,
+        *,
+        copy_id: int,
+        member_id: int,
+    ) -> Loan | None:
+        """Requests a loan for a copy by a member, returning the loan or None if not possible."""
+        async with self.__session_factory() as db:
+            stmt = select(Copy).where(Copy.copy_id == copy_id).with_for_update()
+            result = await db.execute(stmt)
+            copy = result.scalar_one_or_none()
+
+            if not copy or copy.status != CopyStatus.AVAILABLE:
+                logging.getLogger(__name__).warning(
+                    f"Copy '{copy_id}' is not available for loan."
+                )
+                return None
+
+            loan = Loan(
+                copy_id=copy_id,
+                member_id=member_id,
+                loan_date=datetime.utcnow(),
+                due_date=datetime.utcnow() + timedelta(days=14),
+                status=LoanStatus.ACTIVE,
+            )
+            db.add(loan)
+            copy.status = CopyStatus.ON_LOAN
+
+            try:
+                await db.commit()
+                await db.refresh(loan)
+                return loan
+            except IntegrityError as e:
+                logging.getLogger(__name__).warning(
+                    f"Unable to create loan for copy '{copy_id}' to member '{member_id}': {e}"
+                )
+                await db.rollback()
+                return None
