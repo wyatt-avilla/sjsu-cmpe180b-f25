@@ -259,3 +259,33 @@ class Client:
                 )
                 await db.rollback()
                 return False
+
+    async def pay_fine(
+        self,
+        *,
+        fine_id: int,
+    ) -> bool:
+        """Pays a fine, returning True if successful, False otherwise."""
+        async with self.__session_factory() as db:
+            stmt = select(Fine).where(Fine.fine_id == fine_id).with_for_update()
+            result = await db.execute(stmt)
+            fine = result.scalar_one_or_none()
+
+            if not fine or fine.paid:
+                logging.getLogger(__name__).warning(
+                    f"Fine '{fine_id}' is either not found or already paid."
+                )
+                return False
+
+            fine.paid = True
+            fine.paid_at = datetime.utcnow()
+
+            try:
+                await db.commit()
+                return True
+            except IntegrityError as e:
+                logging.getLogger(__name__).error(
+                    f"Unable to pay fine '{fine_id}': {e}"
+                )
+                await db.rollback()
+                return False
