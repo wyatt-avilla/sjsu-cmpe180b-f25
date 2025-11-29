@@ -226,10 +226,10 @@ class Client:
     ) -> bool:
         """Ends a loan, returning True if successful, False otherwise."""
         async with self.__session_factory() as db:
-            result = await db.execute(
+            loan_result = await db.execute(
                 select(Loan).where(Loan.loan_id == loan_id).with_for_update()
             )
-            loan = result.scalar_one_or_none()
+            loan = loan_result.scalar_one_or_none()
 
             if not loan or loan.status != LoanStatus.ACTIVE:
                 logging.getLogger(__name__).warning(
@@ -237,10 +237,10 @@ class Client:
                 )
                 return False
 
-            result = await db.execute(
+            copy_result = await db.execute(
                 select(Copy).where(Copy.copy_id == loan.copy_id).with_for_update()
             )
-            copy = result.scalar_one_or_none()
+            copy = copy_result.scalar_one_or_none()
 
             if not copy:
                 logging.getLogger(__name__).error(
