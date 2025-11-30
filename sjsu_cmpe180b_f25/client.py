@@ -29,8 +29,6 @@ class Client:
         self.__engine = create_async_engine(
             database_url,
             pool_pre_ping=True,
-            pool_size=10,
-            max_overflow=20,
             echo=False,
         )
 
@@ -56,6 +54,9 @@ class Client:
     async def create_tables(self) -> None:
         async with self.__engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
+    async def dispose(self) -> None:
+        await self.__engine.dispose()
 
     async def create_author(
         self,
