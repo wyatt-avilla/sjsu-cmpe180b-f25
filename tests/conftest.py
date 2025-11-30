@@ -11,4 +11,7 @@ async def test_client() -> AsyncGenerator[Client]:
     database_url = "sqlite+aiosqlite:///:memory:"
     client = Client(database_url)
     await client.create_tables()
+
     yield client
+
+    await client.dispose()
