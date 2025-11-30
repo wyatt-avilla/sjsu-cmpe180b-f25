@@ -1,4 +1,4 @@
-import random 
+import random
 from datetime import datetime, timedelta
 
 from .client import Client
@@ -42,15 +42,14 @@ async def populate_db(database_url: str) -> None:
         (10, "Foundation", "978-0553293357", 1951, "Science Fiction", [9]),
     ]
 
-    for book_id, title, isbn, year, genre, author_ids in books:
+    for book_id, title, isbn, year, genre, _ in books:
         await client.create_book(
             book_id=book_id,
             title=title,
             isbn=isbn,
             published_year=year,
             genre=genre,
-        )
-       
+        )  
     # Create book-author relationships
     for a_id in author_ids:
         await client.create_book_author(book_id=book_id, author_id=a_id)
