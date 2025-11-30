@@ -29,8 +29,6 @@ class Client:
         self.__engine = create_async_engine(
             database_url,
             pool_pre_ping=True,
-            pool_size=10,
-            max_overflow=20,
             echo=False,
         )
 
