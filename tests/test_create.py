@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from sjsu_cmpe180b_f25.client import Client
+from sjsu_cmpe180b_f25.client import Client, CopyStatus
 
 
 @pytest.mark.asyncio
@@ -86,3 +86,21 @@ async def test_create_member(test_client: Client) -> None:
     assert member.member_id == 1
     assert member.name == "Tatiana Schwaninger"
     assert member.email == "tati@nbb.com"
+
+
+@pytest.mark.asyncio
+async def test_create_copy(test_client: Client) -> None:
+    """Test that a copy can be created successfully."""
+
+    await test_client.create_book(book_id=1, title="Test Book")
+
+    copy = await test_client.create_copy(
+        copy_id=1,
+        book_id=1,
+        status=CopyStatus.AVAILABLE,
+    )
+
+    assert copy is not None
+    assert copy.copy_id == 1
+    assert copy.book_id == 1
+    assert copy.status == CopyStatus.AVAILABLE
