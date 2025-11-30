@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from sjsu_cmpe180b_f25.client import Client
@@ -67,3 +69,20 @@ async def test_create_book_author(test_client: Client) -> None:
 
     assert book_author.book_id == book.book_id
     assert book_author.author_id == author.author_id
+
+
+@pytest.mark.asyncio
+async def test_create_member(test_client: Client) -> None:
+    """Test that a member can be created successfully."""
+
+    member = await test_client.create_member(
+        member_id=1,
+        name="Tatiana Schwaninger",
+        email="tati@nbb.com",
+        joined_at=datetime.now(tz=None),
+    )
+
+    assert member is not None
+    assert member.member_id == 1
+    assert member.name == "Tatiana Schwaninger"
+    assert member.email == "tati@nbb.com"
