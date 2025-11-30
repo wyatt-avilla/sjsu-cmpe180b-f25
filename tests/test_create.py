@@ -2,7 +2,8 @@ from datetime import datetime
 
 import pytest
 
-from sjsu_cmpe180b_f25.client import Client, CopyStatus
+from sjsu_cmpe180b_f25.client import Client
+from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus
 
 
 @pytest.mark.asyncio
@@ -104,3 +105,38 @@ async def test_create_copy(test_client: Client) -> None:
     assert copy.copy_id == 1
     assert copy.book_id == 1
     assert copy.status == CopyStatus.AVAILABLE
+
+
+@pytest.mark.asyncio
+async def test_create_loan(test_client: Client) -> None:
+    """Test that a loan can be created successfully."""
+
+    await test_client.create_book(book_id=1, title="Test Book")
+    await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
+    await test_client.create_member(
+        member_id=1,
+        name="Graham Perez",
+        email="graham@nbb.com",
+        joined_at=datetime.now(tz=None),
+    )
+
+    now = datetime.now(tz=None)
+
+    loan = await test_client.create_loan(
+        loan_id=1,
+        copy_id=1,
+        member_id=1,
+        loan_date=now,
+        due_date=now,
+        return_date=None,
+        status=LoanStatus.ACTIVE,
+    )
+
+    assert loan is not None
+    assert loan.loan_id == 1
+    assert loan.copy_id == 1
+    assert loan.member_id == 1
+    assert loan.loan_date == now
+    assert loan.due_date == now
+    assert loan.return_date is None
+    assert loan.status == LoanStatus.ACTIVE
