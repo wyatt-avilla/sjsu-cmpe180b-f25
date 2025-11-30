@@ -34,3 +34,32 @@ async def test_pay_fine_success(test_client: Client) -> None:
     result = await test_client.pay_fine(fine_id=1)
 
     assert result is True
+
+
+@pytest.mark.asyncio
+async def test_pay_fine_already_paid(test_client: Client) -> None:
+    """Test that an already paid fine cannot be paid again."""
+    await test_client.create_member(
+        member_id=1,
+        name="Test Member",
+        email="test@example.com",
+        joined_at=datetime.utcnow(),
+    )
+    await test_client.create_book(book_id=1, title="Test Book")
+    await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
+    loan = await test_client.request_loan(copy_id=1, member_id=1)
+
+    assert loan is not None
+
+    await test_client.create_fine(
+        fine_id=1,
+        member_id=1,
+        loan_id=loan.loan_id,
+        amount=5.00,
+        assessed_at=datetime.utcnow(),
+        paid=True,
+    )
+
+    result = await test_client.pay_fine(fine_id=1)
+
+    assert result is False
