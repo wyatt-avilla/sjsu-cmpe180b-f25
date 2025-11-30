@@ -10,6 +10,8 @@ async def test_create_author(test_client: Client) -> None:
     author = await test_client.create_author(id=1, name="Benjamin Reichwald")
 
     assert author is not None
+    assert author.author_id == 1
+    assert author.name == "Benjamin Reichwald"
 
 
 @pytest.mark.asyncio
@@ -36,6 +38,11 @@ async def test_create_book(test_client: Client) -> None:
     )
 
     assert book is not None
+    assert book.book_id == 1
+    assert book.title == "Introduction to Software Engineering"
+    assert book.isbn == "978-3-16-148410-0"
+    assert book.published_year == 2024
+    assert book.genre == "Education"
 
 
 @pytest.mark.asyncio
