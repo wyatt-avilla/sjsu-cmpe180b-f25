@@ -73,7 +73,7 @@ async def populate_db(database_url: str) -> None:
 
     # Create copies
     copy_id = 1
-    copy_map = {}  # book_id → list of its copy_ids
+    copy_map: dict[int, list[int]] = {}  # key: book_id, value: list of copy_ids
 
     for book_id in range(1, 11):
         copy_map[book_id] = []
@@ -125,7 +125,7 @@ async def populate_db(database_url: str) -> None:
             status=status,
         )
         # Create fines
-        if status == LoanStatus.OVERDUE:
+        if status == LoanStatus.OVERDUE and return_date is not None:
             days_late = (return_date - due_date).days
             amount = round(days_late * 0.5, 2)  # 50 cents/day
 
