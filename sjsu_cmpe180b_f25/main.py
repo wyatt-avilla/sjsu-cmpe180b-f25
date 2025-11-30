@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 from collections.abc import Sequence
 
 from .clap import parse_args
@@ -36,6 +37,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
             )
         else:
             logging.getLogger(__name__).error("Loan request failed.")
+            sys.exit(1)
 
     if cli_args.end_loan is not None:
         loan_id = cli_args.end_loan
@@ -45,6 +47,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
             logging.getLogger(__name__).info(f"Loan ID '{loan_id}' ended successfully.")
         else:
             logging.getLogger(__name__).error(f"Failed to end loan ID '{loan_id}'.")
+            sys.exit(1)
 
     if cli_args.pay_fine is not None:
         fine_id = cli_args.pay_fine
@@ -54,6 +57,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
             logging.getLogger(__name__).info(f"Fine ID '{fine_id}' paid successfully.")
         else:
             logging.getLogger(__name__).error(f"Failed to pay fine ID '{fine_id}'.")
+            sys.exit(1)
 
 
 def cli(argv: Sequence[str] | None = None) -> None:
