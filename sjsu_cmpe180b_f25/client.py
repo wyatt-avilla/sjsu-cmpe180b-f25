@@ -57,6 +57,9 @@ class Client:
         async with self.__engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
 
+    async def dispose(self) -> None:
+        await self.__engine.dispose()
+
     async def create_author(
         self,
         *,
