@@ -32,7 +32,14 @@ async def populate_db(database_url: str) -> None:
     books = [
         (1, "1984", "978-0451524935", 1949, "Dystopian", [1]),
         (2, "Animal Farm", "978-0451526342", 1945, "Political Satire", [1]),
-        (3, "Harry Potter and the Sorcerer’s Stone", "978-0590353427", 1997, "Fantasy", [2]),
+        (
+            3,
+            "Harry Potter and the Sorcerer’s Stone",
+            "978-0590353427",
+            1997,
+            "Fantasy",
+            [2],
+        ),
         (4, "Kafka on the Shore", "978-1400079278", 2002, "Magical Realism", [3]),
         (5, "Murder on the Orient Express", "978-0062693662", 1934, "Mystery", [4]),
         (6, "War and Peace", "978-0199232765", 1869, "Historical", [5]),
@@ -42,18 +49,18 @@ async def populate_db(database_url: str) -> None:
         (10, "Foundation", "978-0553293357", 1951, "Science Fiction", [9]),
     ]
 
-    for book_id, title, isbn, year, genre, _ in books:
+    for book_id, title, isbn, year, genre, author_ids in books:
         await client.create_book(
             book_id=book_id,
             title=title,
             isbn=isbn,
             published_year=year,
             genre=genre,
-        )  
-    # Create book-author relationships
-    for a_id in author_ids:
-        await client.create_book_author(book_id=book_id, author_id=a_id)
+        )
 
+        # Create book-author relationships
+        for a_id in author_ids:
+            await client.create_book_author(book_id=book_id, author_id=a_id)
 
     # Create members
     for member_id in range(1, 31):
@@ -117,7 +124,7 @@ async def populate_db(database_url: str) -> None:
             return_date=return_date,
             status=status,
         )
-    # Create fines
+        # Create fines
         if status == LoanStatus.OVERDUE:
             days_late = (return_date - due_date).days
             amount = round(days_late * 0.5, 2)  # 50 cents/day
