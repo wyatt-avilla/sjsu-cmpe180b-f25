@@ -140,3 +140,55 @@ async def test_create_loan(test_client: Client) -> None:
     assert loan.due_date == now
     assert loan.return_date is None
     assert loan.status == LoanStatus.ACTIVE
+
+
+@pytest.mark.asyncio
+async def test_create_fine(test_client: Client) -> None:
+    """Test that a fine can be created successfully."""
+
+    now = datetime.now(tz=None)
+
+    member = await test_client.create_member(
+        member_id=1,
+        name="Test Name",
+        email="test@email.com",
+        joined_at=now,
+    )
+    assert member is not None
+
+    copy = await test_client.create_copy(
+        copy_id=1,
+        book_id=1,
+        status=CopyStatus.AVAILABLE,
+    )
+    assert copy is not None
+
+    loan = await test_client.create_loan(
+        loan_id=1,
+        copy_id=1,
+        member_id=1,
+        loan_date=now,
+        due_date=now,
+        return_date=None,
+        status=LoanStatus.ACTIVE,
+    )
+    assert loan is not None
+
+    fine = await test_client.create_fine(
+        fine_id=1,
+        member_id=1,
+        loan_id=1,
+        amount=10.0,
+        assessed_at=now,
+        paid=False,
+        paid_at=None,
+    )
+    assert fine is not None
+
+    assert fine.fine_id == 1
+    assert fine.member_id == 1
+    assert fine.loan_id == 1
+    assert fine.amount == 10.0
+    assert fine.assessed_at == now
+    assert fine.paid is False
+    assert fine.paid_at is None
