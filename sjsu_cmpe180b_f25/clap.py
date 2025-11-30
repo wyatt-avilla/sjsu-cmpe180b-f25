@@ -18,6 +18,11 @@ class CommandLineArguments:
     end_loan: int | None = None
     pay_fine: int | None = None
 
+    top_books: int | None = None
+    overdue_members: bool = False
+    unpaid_fines_members: float | None = None
+    copies_on_loans: int | None = None
+    genre_fine_stats: bool = False
 
 def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     parser = argparse.ArgumentParser(
@@ -61,6 +66,39 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         help="Pay the fine with the specified ID.",
     )
 
+    parser.add_argument(
+        "--top-books",
+        type=int,
+        metavar="N",
+        help="Show the top N most loaned books.",
+    )
+
+    parser.add_argument(
+        "--overdue-members",
+        action="store_true",
+        help="List members who currently have overdue loans.",
+    )
+
+    parser.add_argument(
+        "--unpaid_fines_members",
+        type=float,
+        metavar="AMOUNT",
+        help="List members whose unpaid fines total with optional minimum amount.",
+    )
+
+    parser.add_argument(
+        "--copies_on_loans",
+        type=int,
+        metavar="N",
+        help="Show the top N books based on copies on loans.",
+    )
+
+    parser.add_argument(
+        "--genre-fine-stats",
+        action="store_true",
+        help="Show fine statistics grouped by book genre.",
+    )
+
     args = parser.parse_args(argv)
 
     return CommandLineArguments(
@@ -70,4 +108,10 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         request_loan=tuple(args.request_loan) if args.request_loan else None,
         end_loan=args.end_loan,
         pay_fine=args.pay_fine,
+
+        top_books=args.top_books,
+        overdue_members=args.overdue_members,
+        unpaid_fines_members=args.unpaid_fines_members,
+        copies_on_loans=args.copies_on_loans,
+        genre_fine_stats=args.genre_fine_stats,
     )
