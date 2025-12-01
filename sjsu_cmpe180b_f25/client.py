@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import Row, desc, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -293,7 +294,9 @@ class Client:
                 await db.rollback()
                 return False
 
-    async def get_top_books(self, limit: int = 10) -> list[tuple[int, str, int]]:
+    async def get_top_books(
+        self, limit: int = 10
+    ) -> Sequence[Row[tuple[int, str, int]]]:
         """Return the top N most loaned books"""
         async with self.__session_factory() as db:
             stmt = (
@@ -314,7 +317,7 @@ class Client:
 
     async def get_overdue_members(
         self,
-    ) -> list[tuple[int, str, str, int, datetime]]:
+    ) -> Sequence[Row[tuple[int, str, str, int, datetime]]]:
         """Return members who currently have overdue loans"""
         async with self.__session_factory() as db:
             stmt = (
@@ -348,7 +351,7 @@ class Client:
     async def get_unpaid_fines_members(
         self,
         min_total: float = 0.0,
-    ) -> list[tuple[int, str, str, float, int]]:
+    ) -> Sequence[Row[tuple[int, str, str, float, int]]]:
         """Return members with unpaid fines with optional min threshold"""
         async with self.__session_factory() as db:
             total_unpaid = func.sum(Fine.amount).label("total_unpaid")
@@ -382,7 +385,7 @@ class Client:
     async def get_copies_on_loan(
         self,
         limit: int = 20,
-    ) -> list[tuple[int, str, int, int, float]]:
+    ) -> Sequence[Row[tuple[int, str, int, int, float]]]:
         """Return loan stats per book title"""
         async with self.__session_factory() as db:
             total_copies = func.count(Copy.copy_id)
@@ -418,7 +421,7 @@ class Client:
 
     async def get_genre_fine_statistics(
         self,
-    ) -> list[tuple[str | None, int, float]]:
+    ) -> Sequence[Row[tuple[str | None, int, float]]]:
         """Return fine stats aggregated by book genre"""
         async with self.__session_factory() as db:
             stmt = (
