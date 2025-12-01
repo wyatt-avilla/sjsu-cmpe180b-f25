@@ -85,7 +85,7 @@ async def populate_db(
     for book_id in book_ids:
         num_copies = random.randint(1, copies_per_book * 2)
         for _ in range(num_copies):
-            status = random.choice(
+            copy_status = random.choice(
                 [
                     CopyStatus.AVAILABLE,
                     CopyStatus.AVAILABLE,
@@ -96,7 +96,7 @@ async def populate_db(
             )
 
             copy = await client.create_copy(
-                copy_id=copy_id, book_id=book_id, status=status
+                copy_id=copy_id, book_id=book_id, status=copy_status
             )
             if copy:
                 copy_ids.append(copy_id)
@@ -123,13 +123,13 @@ async def populate_db(
 
         if is_returned:
             return_date = loan_date + timedelta(days=random.randint(1, 30))
-            status = LoanStatus.RETURNED
+            loan_status = LoanStatus.RETURNED
         elif is_overdue:
             return_date = None
-            status = LoanStatus.OVERDUE
+            loan_status = LoanStatus.OVERDUE
         else:
             return_date = None
-            status = LoanStatus.ACTIVE
+            loan_status = LoanStatus.ACTIVE
 
         loan = await client.create_loan(
             loan_id=i,
@@ -137,14 +137,14 @@ async def populate_db(
             member_id=member_id,
             loan_date=loan_date,
             due_date=due_date,
-            status=status,
+            status=loan_status,
             return_date=return_date,
         )
 
         if loan:
             loan_ids.append(i)
 
-            if status == LoanStatus.OVERDUE and random.random() < fine_probability:
+            if loan_status == LoanStatus.OVERDUE and random.random() < fine_probability:
                 days_overdue = (current_date - due_date).days
                 amount = days_overdue * 0.50
                 paid = random.random() < 0.3
