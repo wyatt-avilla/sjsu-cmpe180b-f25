@@ -4,3 +4,4 @@
 ![Ruff](https://img.shields.io/badge/Ruff-Check-34223D?logo=ruff)
 ![MyPy](https://img.shields.io/badge/Mypy-Check-blue?logo=python)
 ![Pytest](https://img.shields.io/github/actions/workflow/status/wyatt-avilla/sjsu-cmpe180b-f25/pytest.yml?logo=pytest&label=Pytest)
+![Nix Flake](https://img.shields.io/badge/Nix_Flake-_?logo=nixos&logoColor=CAD3F5&labelColor=grey&color=9173ff)
