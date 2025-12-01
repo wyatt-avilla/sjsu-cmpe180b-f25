@@ -63,27 +63,36 @@ async def main(argv: Sequence[str] | None = None) -> None:
         limit = cli_args.top_books
         logger.info(f"Fetching top {limit} most-loaned books...")
         top_books = await client.get_top_books(limit=limit)
-        logger.info(f"\nTop {limit} books by total loans:\n")
-        logger.info(f"{'ID':>5}  {'Title':40}  {'Loans':>5}")
-        logger.info("-" * 60)
-        for book_id, title, total_loans in top_books:
-            logger.info(f"{book_id:5}  {title[:40]:40}  {total_loans:5}")
+
+        header = [
+            f"\nTop {limit} books by total loans:\n",
+            f"{'ID':>5}  {'Title':40}  {'Loans':>5}",
+            "-" * 60,
+        ]
+        formatted_books = [
+            f"{book_id:5}  {title[:40]:40}  {total_loans:5}"
+            for book_id, title, total_loans in top_books
+        ]
+
+        logger.info("\n".join(header + formatted_books))
 
     # Members with currently overdue loans
     if cli_args.overdue_members:
         logger.info("Fetching members with currently overdue loans...")
         overdue_members = await client.get_overdue_members()
-        logger.info("\nMembers with currently overdue loans:\n")
-        logger.info(
-            f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Overdue':>7}  {'Earliest Due':>12}"
-        )
-        logger.info("-" * 90)
-        for member_id, name, email, overdue_count, earliest_due in overdue_members:
-            earliest_str = earliest_due.strftime("%Y-%m-%d")
-            logger.info(
-                f"{member_id:5}  {name[:25]:25}  {email[:30]:30}  "
-                f"{overdue_count:7}  {earliest_str:>12}"
-            )
+
+        header = [
+            "\nMembers with currently overdue loans:\n",
+            f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Overdue':>7}  {'Earliest Due':>12}",
+            "-" * 90,
+        ]
+        formatted_members = [
+            f"{member_id:5}  {name[:25]:25}  {email[:30]:30}  "
+            f"{overdue_count:7}  {earliest_due.strftime('%Y-%m-%d'):>12}"
+            for member_id, name, email, overdue_count, earliest_due in overdue_members
+        ]
+
+        logger.info("\n".join(header + formatted_members))
 
     # Members with highest unpaid fines (with optional minimum)
     if cli_args.unpaid_fines_members is not None:
@@ -92,56 +101,51 @@ async def main(argv: Sequence[str] | None = None) -> None:
         members_with_unpaid_fines = await client.get_unpaid_fines_members(
             min_total=min_total
         )
-        logger.info(f"\nMembers with unpaid fines >= {min_total:.2f}:\n")
-        logger.info(
-            f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Total Unpaid':>12}  {'Count':>5}"
-        )
-        logger.info("-" * 95)
-        for (
-            member_id,
-            name,
-            email,
-            total_unpaid,
-            fine_count,
-        ) in members_with_unpaid_fines:
-            logger.info(
-                f"{member_id:5}  {name[:25]:25}  {email[:30]:30}  "
-                f"{total_unpaid:12.2f}  {fine_count:5}"
-            )
+
+        header = [
+            f"\nMembers with unpaid fines >= {min_total:.2f}:\n",
+            f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Total Unpaid':>12}  {'Count':>5}",
+            "-" * 95,
+        ]
+        formatted_members = [
+            f"{member_id:5}  {name[:25]:25}  {email[:30]:30}  "
+            f"{total_unpaid:12.2f}  {fine_count:5}"
+            for member_id, name, email, total_unpaid, fine_count in members_with_unpaid_fines
+        ]
+        logger.info("\n".join(header + formatted_members))
 
     # Copies on loan per book
     if cli_args.copies_on_loans is not None:
         limit = cli_args.copies_on_loans
         logger.info(f"Fetching top {limit} books by utilization...")
         collection_utilization = await client.get_copies_on_loan(limit=limit)
-        logger.info(f"\nTop {limit} books by copy utilization:\n")
-        logger.info(
-            f"{'ID':>5}  {'Title':40}  {'Copies':>6}  {'On Loan':>7}  {'Util %':>7}"
-        )
-        logger.info("-" * 80)
-        for (
-            book_id,
-            title,
-            total_copies,
-            copies_on_loan,
-            util,
-        ) in collection_utilization:
-            util_val = util if util is not None else 0.0
-            logger.info(
-                f"{book_id:5}  {title[:40]:40}  {total_copies:6}  "
-                f"{copies_on_loan:7}  {util_val:7.2f}"
-            )
+
+        header = [
+            f"\nTop {limit} books by copy utilization:\n",
+            f"{'ID':>5}  {'Title':40}  {'Copies':>6}  {'On Loan':>7}  {'Util %':>7}",
+            "-" * 80,
+        ]
+        formatted_copies = [
+            f"{book_id:5}  {title[:40]:40}  {total_copies:6}  "
+            f"{copies_on_loan:7}  {util if util is not None else 0.0:7.2f}"
+            for book_id, title, total_copies, copies_on_loan, util in collection_utilization
+        ]
+        logger.info("\n".join(header + formatted_copies))
 
     # Fine statistics by genre
     if cli_args.genre_fine_stats:
         logger.info("Fetching fine statistics grouped by genre...")
         fine_statistics = await client.get_genre_fine_statistics()
-        logger.info("\nFine statistics by genre:\n")
-        logger.info(f"{'Genre':20}  {'Fine Count':>10}  {'Total Fines':>12}")
-        logger.info("-" * 50)
-        for genre, fine_count, total_fines in fine_statistics:
-            genre_name = genre or "UNKNOWN"
-            logger.info(f"{genre_name[:20]:20}  {fine_count:10}  {total_fines:12.2f}")
+        header = [
+            "\nFine statistics by genre:\n",
+            f"{'Genre':20}  {'Fine Count':>10}  {'Total Fines':>12}",
+            "-" * 50,
+        ]
+        formatted_stats = [
+            f"{genre or 'UNKNOWN':20}  {fine_count:10}  {total_fines:12.2f}"
+            for genre, fine_count, total_fines in fine_statistics
+        ]
+        logger.info("\n".join(header + formatted_stats))
 
 
 def cli(argv: Sequence[str] | None = None) -> None:
