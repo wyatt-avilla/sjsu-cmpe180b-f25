@@ -27,6 +27,7 @@ class CommandLineArguments:
     drop_indexes: bool = False
     explain: str | None = None
 
+
 def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     parser = argparse.ArgumentParser(
         description="CMPE-180b Project Command Line Interface",
@@ -109,15 +110,13 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     )
 
     parser.add_argument(
-        "--drop-indexes", 
-        action="store_true", 
-        help="Drop all created indexes."
+        "--drop-indexes", action="store_true", help="Drop all created indexes."
     )
 
     parser.add_argument(
         "--explain",
         choices=["top_books", "overdue_members", "unpaid_fines"],
-        help="Run EXPLAIN ANALYZE on a complex query."
+        help="Run EXPLAIN ANALYZE on a complex query.",
     )
 
     args = parser.parse_args(argv)

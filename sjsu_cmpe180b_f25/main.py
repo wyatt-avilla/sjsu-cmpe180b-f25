@@ -5,9 +5,10 @@ from collections.abc import Sequence
 
 from .clap import parse_args
 from .client import Client
-from .population import populate_db
-from .index import create_indexes, drop_indexes
 from .explain import run_explain
+from .index import create_indexes, drop_indexes
+from .population import populate_db
+
 
 async def main(argv: Sequence[str] | None = None) -> None:
     cli_args = parse_args(argv)
@@ -151,15 +152,16 @@ async def main(argv: Sequence[str] | None = None) -> None:
     if cli_args.create_indexes:
         await create_indexes(cli_args.database_url)
         return
-    
+
     if cli_args.drop_indexes:
         await drop_indexes(cli_args.database_url)
         return
-    
+
     if cli_args.explain:
         await run_explain(cli_args.database_url, cli_args.explain)
         return
-    
+
+
 def cli(argv: Sequence[str] | None = None) -> None:
     asyncio.run(main(argv))
 

@@ -1,7 +1,11 @@
 from __future__ import annotations
+
 import logging
+
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
+
+logger = logging.getLogger(__name__)
 
 EXPLAIN_QUERIES = {
     "top_books": """
@@ -17,7 +21,6 @@ EXPLAIN_QUERIES = {
         ORDER BY loan_count DESC
         LIMIT 10;
     """,
-
     "overdue_members": """
         EXPLAIN ANALYZE
         SELECT DISTINCT
@@ -28,7 +31,6 @@ EXPLAIN_QUERIES = {
         JOIN loans l ON m.member_id = l.member_id
         WHERE l.status = 'OVERDUE'::loanstatus;
     """,
-
     "unpaid_fines": """
         EXPLAIN ANALYZE
         SELECT
@@ -40,7 +42,7 @@ EXPLAIN_QUERIES = {
         WHERE f.paid = FALSE
         GROUP BY m.member_id, m.name
         HAVING SUM(f.amount) > 20.0;
-    """
+    """,
 }
 
 
@@ -58,6 +60,6 @@ async def run_explain(database_url: str, query_name: str) -> None:
 
     await engine.dispose()
 
-    print("\n===== EXPLAIN ANALYZE plan =====")
-    print(plan)
-    print("================================\n")
+    logger.info("\n===== EXPLAIN ANALYZE plan =====")
+    logger.info(plan)
+    logger.info("================================\n")
