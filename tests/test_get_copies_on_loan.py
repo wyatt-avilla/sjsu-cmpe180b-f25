@@ -38,7 +38,7 @@ async def test_get_copies_on_loan(test_client: Client) -> None:
 
     result = await test_client.get_copies_on_loan(limit=2)
     assert len(result) == 2
-    assert result == [
+    assert [tuple(row) for row in result] == [
         (1, "Loaned Book", 3, 3, 100.0),
         (2, "Partially Loaned Book", 4, 2, 50.0),
     ]

@@ -85,7 +85,7 @@ async def test_get_genre_fine_stats(test_client: Client) -> None:
     )
 
     result = await test_client.get_genre_fine_statistics()
-    assert result == [
+    assert [tuple(row) for row in result] == [
         ("Fiction", 2, 25.0),
         ("Non-Fiction", 1, 5.0),
     ]
