@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from sjsu_cmpe180b_f25.client import Client
 from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus
 
+from .data import book_title_parts, first_names, genres, last_names
+
 
 async def populate_db(
     client: Client,
@@ -31,58 +33,6 @@ async def populate_db(
 
     client.create_tables()
     logger = logging.getLogger(__name__)
-
-    first_names = [
-        "Emma",
-        "Liam",
-        "Olivia",
-        "Noah",
-        "Ava",
-        "Ethan",
-        "Sophia",
-        "Mason",
-        "Isabella",
-        "William",
-        "Mia",
-        "James",
-        "Charlotte",
-        "Benjamin",
-        "Amelia",
-    ]
-    last_names = [
-        "Smith",
-        "Johnson",
-        "Williams",
-        "Brown",
-        "Jones",
-        "Garcia",
-        "Miller",
-        "Davis",
-        "Rodriguez",
-        "Martinez",
-        "Hernandez",
-        "Lopez",
-        "Wilson",
-    ]
-
-    book_title_parts = [
-        ("The", "Mystery", "Secret", "Lost", "Hidden", "Ancient", "Forgotten"),
-        ("Shadow", "Light", "Dawn", "Midnight", "Storm", "Fire", "Ice"),
-        ("of", "in", "at", "beyond", "beneath", "across"),
-        ("Time", "Eternity", "Dreams", "Memories", "Tomorrow", "Yesterday", "Darkness"),
-    ]
-
-    genres = [
-        "Fiction",
-        "Mystery",
-        "Science Fiction",
-        "Fantasy",
-        "Romance",
-        "Thriller",
-        "Historical Fiction",
-        "Biography",
-        "Self-Help",
-    ]
 
     logger.info("Creating authors...")
     author_ids = []
