@@ -61,8 +61,10 @@ Inside the cloned repo, and ideally within a virtual environment run:
 uv pip install .
 ```
 
+<!-- prettier-ignore-start -->
 > [!NOTE]
 Remove the `uv` prefix from the previous command to use `pip` instead.
+<!-- prettier-ignore-end -->
 
 ## Testing
 
