@@ -5,3 +5,4 @@
 ![MyPy](https://img.shields.io/badge/Mypy-Check-blue?logo=python)
 ![Pytest](https://img.shields.io/github/actions/workflow/status/wyatt-avilla/sjsu-cmpe180b-f25/pytest.yml?logo=pytest&label=Pytest)
 ![Nix Flake](https://img.shields.io/badge/Nix_Flake-_?logo=nixos&logoColor=CAD3F5&labelColor=grey&color=9173ff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
