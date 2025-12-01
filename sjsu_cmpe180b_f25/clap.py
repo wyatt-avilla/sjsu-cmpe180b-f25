@@ -81,14 +81,14 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     )
 
     parser.add_argument(
-        "--unpaid_fines_members",
+        "--unpaid-fines-members",
         type=float,
         metavar="AMOUNT",
         help="List members whose unpaid fines total with optional minimum amount.",
     )
 
     parser.add_argument(
-        "--copies_on_loans",
+        "--copies-on-loans",
         type=int,
         metavar="N",
         help="Show the top N books based on copies on loans.",
