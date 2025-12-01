@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 from .clap import parse_args
 from .client import Client
-from .populate_db import populate_db
+from .population import populate_db
 
 
 async def main(argv: Sequence[str] | None = None) -> None:
@@ -22,9 +22,9 @@ async def main(argv: Sequence[str] | None = None) -> None:
     client = Client(cli_args.database_url)
 
     if cli_args.populate_db:
-        logger.info("Populating database...")
-        await populate_db(cli_args.database_url)
-        logger.info("Database population complete.")
+        logging.getLogger(__name__).info("Populating database...")
+        await populate_db(client)
+        logging.getLogger(__name__).info("Database population complete.")
 
     if cli_args.request_loan is not None:
         copy_id, member_id = cli_args.request_loan
