@@ -11,11 +11,11 @@ from .data import book_title_parts, first_names, genres, last_names
 async def populate_db(
     client: Client,
     *,
-    num_authors: int = 20,
-    num_books: int = 50,
-    num_members: int = 30,
+    num_authors: int = 1000,
+    num_books: int = 1000,
+    num_members: int = 1000,
     copies_per_book: int = 3,
-    num_loans: int = 100,
+    num_loans: int = 1000,
     fine_probability: float = 0.2,
 ) -> None:
     """
