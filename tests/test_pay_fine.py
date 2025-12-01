@@ -10,11 +10,13 @@ from sjsu_cmpe180b_f25.models import CopyStatus
 async def test_pay_fine_success(test_client: Client) -> None:
     """Test that an unpaid fine can be paid."""
 
+    now = datetime.now(tz=None)
+
     await test_client.create_member(
         member_id=1,
         name="Test Member",
         email="test@example. com",
-        joined_at=datetime.utcnow(),
+        joined_at=now,
     )
     await test_client.create_book(book_id=1, title="Test Book")
     await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
@@ -27,7 +29,7 @@ async def test_pay_fine_success(test_client: Client) -> None:
         member_id=1,
         loan_id=loan.loan_id,
         amount=5.00,
-        assessed_at=datetime.utcnow(),
+        assessed_at=now,
         paid=False,
     )
 
@@ -39,11 +41,14 @@ async def test_pay_fine_success(test_client: Client) -> None:
 @pytest.mark.asyncio
 async def test_pay_fine_already_paid(test_client: Client) -> None:
     """Test that an already paid fine cannot be paid again."""
+
+    now = datetime.now(tz=None)
+
     await test_client.create_member(
         member_id=1,
         name="Test Member",
         email="test@example.com",
-        joined_at=datetime.utcnow(),
+        joined_at=now,
     )
     await test_client.create_book(book_id=1, title="Test Book")
     await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
@@ -56,7 +61,7 @@ async def test_pay_fine_already_paid(test_client: Client) -> None:
         member_id=1,
         loan_id=loan.loan_id,
         amount=5.00,
-        assessed_at=datetime.utcnow(),
+        assessed_at=now,
         paid=True,
     )
 

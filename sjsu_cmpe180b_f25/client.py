@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import TypeVar
 
 from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
@@ -48,7 +48,7 @@ class Client:
                 await db.refresh(model)
                 return model
             except IntegrityError as e:
-                logging.getLogger(__name__).warn(f"Unable to create '{model}' {(e)}")
+                logging.getLogger(__name__).warning(f"Unable to create '{model}' {(e)}")
                 await db.rollback()
                 return None
 
@@ -200,11 +200,12 @@ class Client:
                 )
                 return None
 
+            now = datetime.now(tz=UTC)
             loan = Loan(
                 copy_id=copy_id,
                 member_id=member_id,
-                loan_date=datetime.utcnow(),
-                due_date=datetime.utcnow() + timedelta(days=14),
+                loan_date=now,
+                due_date=now + timedelta(days=14),
                 status=LoanStatus.ACTIVE,
             )
             db.add(loan)
@@ -250,7 +251,7 @@ class Client:
                 )
                 return False
 
-            loan.return_date = datetime.utcnow()
+            loan.return_date = datetime.now(tz=UTC)
             loan.status = LoanStatus.RETURNED
             copy.status = CopyStatus.AVAILABLE
 
@@ -282,7 +283,7 @@ class Client:
                 return False
 
             fine.paid = True
-            fine.paid_at = datetime.utcnow()
+            fine.paid_at = datetime.now(tz=UTC)
 
             try:
                 await db.commit()
@@ -332,7 +333,7 @@ class Client:
                 .where(
                     Loan.status == LoanStatus.ACTIVE,
                     Loan.return_date.is_(None),
-                    Loan.due_date < datetime.utcnow(),
+                    Loan.due_date < datetime.now(tz=UTC),
                 )
                 .group_by(
                     Member.member_id,

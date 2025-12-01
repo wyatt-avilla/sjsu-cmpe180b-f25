@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 
@@ -37,7 +37,7 @@ async def test_request_loan_unavailable_copy(test_client: Client) -> None:
         member_id=1,
         name="Test Member",
         email="test@example.com",
-        joined_at=datetime.utcnow(),
+        joined_at=datetime.now(tz=UTC),
     )
 
     loan = await test_client.request_loan(copy_id=1, member_id=1)

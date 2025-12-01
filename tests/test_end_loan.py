@@ -16,7 +16,7 @@ async def test_end_loan_success(test_client: Client) -> None:
         member_id=1,
         name="Test Member",
         email="test@example.com",
-        joined_at=datetime.utcnow(),
+        joined_at=datetime.now(tz=None),
     )
     loan = await test_client.request_loan(copy_id=1, member_id=1)
 
