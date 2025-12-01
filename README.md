@@ -11,3 +11,38 @@
 
 For development environment setup instructions see
 [Contributing](/CONTRIBUTING.md).
+
+## Execution Instructions
+
+### With `uv`
+
+Inside the cloned repo, run:
+
+```sh
+uv run app
+```
+
+### With `pip` and `venv`
+
+Inside the cloned repo, run:
+
+```sh
+python -m venv .venv
+source .venv/bin/activate
+pip install .
+python -m sjsu_cmpe180b_f25.main
+```
+
+### With Nix
+
+Inside the cloned repo, run:
+
+```sh
+nix run
+```
+
+or, run from the GitHub URL directly with:
+
+```sh
+nix run github:wyatt-avilla/sjsu-cmpe180b-f25
+```
