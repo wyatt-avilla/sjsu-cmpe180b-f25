@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from sqlalchemy import Row, desc, func, select
+from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -390,22 +390,18 @@ class Client:
         async with self.__session_factory() as db:
             total_copies = func.count(Copy.copy_id)
             copies_on_loan = func.sum(
-                func.if_(
-                    Copy.status == CopyStatus.ON_LOAN,
-                    1,
-                    0,
-                )
+                case((Copy.status == CopyStatus.ON_LOAN, 1), else_=0)
             )
 
             stmt = (
                 select(
                     Book.book_id,
                     Book.title,
-                    total_copies.label("total_copies"),
-                    copies_on_loan.label("copies_on_loan"),
-                    (copies_on_loan * 100.0 / func.nullif(total_copies, 0)).label(
-                        "utilization_percent"
-                    ),
+                    type_coerce(total_copies, Integer).label("total_copies"),
+                    type_coerce(copies_on_loan, Integer).label("copies_on_loan"),
+                    type_coerce(
+                        copies_on_loan * 100.0 / func.nullif(total_copies, 0), Float
+                    ).label("utilization_percent"),
                 )
                 .join(Copy, Copy.book_id == Book.book_id)
                 .group_by(Book.book_id, Book.title)
