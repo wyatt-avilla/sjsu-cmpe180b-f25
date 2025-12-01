@@ -1,3 +1,4 @@
+import logging
 import random
 from datetime import datetime, timedelta
 
@@ -5,139 +6,217 @@ from .client import Client
 from .models import CopyStatus, LoanStatus
 
 
-async def populate_db(database_url: str) -> None:
-    client = Client(database_url)
+async def populate_db(
+    client: Client,
+    *,
+    num_authors: int = 20,
+    num_books: int = 50,
+    num_members: int = 30,
+    copies_per_book: int = 3,
+    num_loans: int = 100,
+    fine_probability: float = 0.2,
+) -> None:
+    """
+    Generates synthetic library data.
 
-    # Create tables
-    await client.create_tables()
+    Args:
+        client: Database client with create methods
+        num_authors: Number of authors to create
+        num_books: Number of books to create
+        num_members: Number of library members to create
+        copies_per_book: Average number of copies per book
+        num_loans: Number of loan records to create
+        fine_probability: Probability that an overdue loan has a fine (0.0 to 1.0)
+    """
 
-    # Create authors
-    authors = [
-        (1, "George Orwell"),
-        (2, "J.K. Rowling"),
-        (3, "Haruki Murakami"),
-        (4, "Agatha Christie"),
-        (5, "Leo Tolstoy"),
-        (6, "Jane Austen"),
-        (7, "Mark Twain"),
-        (8, "Yuval Noah Harari"),
-        (9, "Isaac Asimov"),
-        (10, "Ernest Hemingway"),
+    client.create_tables()
+    logger = logging.getLogger(__name__)
+
+    first_names = [
+        "Emma",
+        "Liam",
+        "Olivia",
+        "Noah",
+        "Ava",
+        "Ethan",
+        "Sophia",
+        "Mason",
+        "Isabella",
+        "William",
+        "Mia",
+        "James",
+        "Charlotte",
+        "Benjamin",
+        "Amelia",
+    ]
+    last_names = [
+        "Smith",
+        "Johnson",
+        "Williams",
+        "Brown",
+        "Jones",
+        "Garcia",
+        "Miller",
+        "Davis",
+        "Rodriguez",
+        "Martinez",
+        "Hernandez",
+        "Lopez",
+        "Wilson",
     ]
 
-    for author_id, name in authors:
-        await client.create_author(id=author_id, name=name)
-
-    # Create books
-    books = [
-        (1, "1984", "978-0451524935", 1949, "Dystopian", [1]),
-        (2, "Animal Farm", "978-0451526342", 1945, "Political Satire", [1]),
-        (
-            3,
-            "Harry Potter and the Sorcerer’s Stone",
-            "978-0590353427",
-            1997,
-            "Fantasy",
-            [2],
-        ),
-        (4, "Kafka on the Shore", "978-1400079278", 2002, "Magical Realism", [3]),
-        (5, "Murder on the Orient Express", "978-0062693662", 1934, "Mystery", [4]),
-        (6, "War and Peace", "978-0199232765", 1869, "Historical", [5]),
-        (7, "Pride and Prejudice", "978-1503290563", 1813, "Romance", [6]),
-        (8, "The Adventures of Tom Sawyer", "978-0143039563", 1876, "Adventure", [7]),
-        (9, "Sapiens", "978-0062316110", 2011, "History", [8]),
-        (10, "Foundation", "978-0553293357", 1951, "Science Fiction", [9]),
+    book_title_parts = [
+        ("The", "Mystery", "Secret", "Lost", "Hidden", "Ancient", "Forgotten"),
+        ("Shadow", "Light", "Dawn", "Midnight", "Storm", "Fire", "Ice"),
+        ("of", "in", "at", "beyond", "beneath", "across"),
+        ("Time", "Eternity", "Dreams", "Memories", "Tomorrow", "Yesterday", "Darkness"),
     ]
 
-    for book_id, title, isbn, year, genre, author_ids in books:
-        await client.create_book(
-            book_id=book_id,
-            title=title,
-            isbn=isbn,
-            published_year=year,
-            genre=genre,
+    genres = [
+        "Fiction",
+        "Mystery",
+        "Science Fiction",
+        "Fantasy",
+        "Romance",
+        "Thriller",
+        "Historical Fiction",
+        "Biography",
+        "Self-Help",
+    ]
+
+    logger.info("Creating authors...")
+    author_ids = []
+    for i in range(1, num_authors + 1):
+        name = f"{random.choice(first_names)} {random.choice(last_names)}"
+        author = await client.create_author(id=i, name=name)
+        if author:
+            author_ids.append(i)
+    logger.info(f"Created {len(author_ids)} authors")
+
+    logger.info("Creating books...")
+    book_ids = []
+    for i in range(1, num_books + 1):
+        title = " ".join(random.choice(part) for part in book_title_parts)
+        isbn = f"{random.randint(100, 999)}-{random.randint(1, 9)}-{random.randint(10, 99)}-{random.randint(100000, 999999)}-{random.randint(0, 9)}"
+        year = random.randint(1950, 2024)
+        genre = random.choice(genres)
+
+        book = await client.create_book(
+            book_id=i, title=title, isbn=isbn, published_year=year, genre=genre
         )
+        if book:
+            book_ids.append(i)
 
-        # Create book-author relationships
-        for a_id in author_ids:
-            await client.create_book_author(book_id=book_id, author_id=a_id)
+            num_book_authors = random.randint(1, min(3, len(author_ids)))
+            selected_authors = random.sample(author_ids, num_book_authors)
+            for author_id in selected_authors:
+                await client.create_book_author(book_id=i, author_id=author_id)
 
-    # Create members
-    for member_id in range(1, 31):
-        await client.create_member(
-            member_id=member_id,
-            name=f"Member {member_id}",
-            email=f"member{member_id}@example.com",
-            joined_at=datetime(2023, random.randint(1, 12), random.randint(1, 28)),
+    logger.info(f"Created {len(book_ids)} books with author relationships")
+
+    logger.info("Creating members...")
+    member_ids = []
+    base_date = datetime(2020, 1, 1)
+    for i in range(1, num_members + 1):
+        name = f"{random.choice(first_names)} {random.choice(last_names)}"
+        email = f"{name.lower().replace(' ', '.')}@example.com"
+        joined_at = base_date + timedelta(days=random.randint(0, 1800))
+
+        member = await client.create_member(
+            member_id=i, name=name, email=email, joined_at=joined_at
         )
+        if member:
+            member_ids.append(i)
+    logger.info(f"Created {len(member_ids)} members")
 
-    # Create copies
+    logger.info("Creating book copies...")
+    copy_ids = []
     copy_id = 1
-    copy_map: dict[int, list[int]] = {}  # key: book_id, value: list of copy_ids
-
-    for book_id in range(1, 11):
-        copy_map[book_id] = []
-        num_copies = random.randint(1, 3)
-
+    for book_id in book_ids:
+        num_copies = random.randint(1, copies_per_book * 2)
         for _ in range(num_copies):
-            await client.create_copy(
-                copy_id=copy_id,
-                book_id=book_id,
-                status=CopyStatus.AVAILABLE,
+            status = random.choice(
+                [
+                    CopyStatus.AVAILABLE,
+                    CopyStatus.AVAILABLE,
+                    CopyStatus.AVAILABLE,
+                    CopyStatus.ON_LOAN,
+                    CopyStatus.LOST,
+                ]
             )
-            copy_map[book_id].append(copy_id)
+
+            copy = await client.create_copy(
+                copy_id=copy_id, book_id=book_id, status=status
+            )
+            if copy:
+                copy_ids.append(copy_id)
             copy_id += 1
+    logger.info(f"Created {len(copy_ids)} book copies")
 
-    # Create loans
-    loan_id = 1
+    logger.info("Creating loans...")
+    loan_ids = []
     fine_id = 1
+    current_date = datetime.now()
 
-    for member_id in range(1, 21):  # Only 20 members borrow books
-        # Randomly choose a book
-        book_id = random.randint(1, 10)
-        possible_copies = copy_map[book_id]
-        copy_id_selected = random.choice(possible_copies)
+    for i in range(1, num_loans + 1):
+        if not copy_ids or not member_ids:
+            break
 
-        # Generate realistic loan dates
-        loan_date = datetime.now() - timedelta(days=random.randint(1, 60))
+        copy_id = random.choice(copy_ids)
+        member_id = random.choice(member_ids)
+
+        loan_date = current_date - timedelta(days=random.randint(1, 365))
         due_date = loan_date + timedelta(days=14)
 
-        # Random loan status
-        if random.random() < 0.7:
-            # returned on time or late
-            return_date = loan_date + timedelta(days=random.randint(5, 25))
-            if return_date > due_date:
-                status = LoanStatus.OVERDUE
-            else:
-                status = LoanStatus.RETURNED
+        is_overdue = current_date > due_date
+        is_returned = random.random() < 0.7
+
+        if is_returned:
+            return_date = loan_date + timedelta(days=random.randint(1, 30))
+            status = LoanStatus.RETURNED
+        elif is_overdue:
+            return_date = None
+            status = LoanStatus.OVERDUE
         else:
-            # still active
             return_date = None
             status = LoanStatus.ACTIVE
 
-        await client.create_loan(
-            loan_id=loan_id,
-            copy_id=copy_id_selected,
+        loan = await client.create_loan(
+            loan_id=i,
+            copy_id=copy_id,
             member_id=member_id,
             loan_date=loan_date,
             due_date=due_date,
-            return_date=return_date,
             status=status,
+            return_date=return_date,
         )
-        # Create fines
-        if status == LoanStatus.OVERDUE and return_date is not None:
-            days_late = (return_date - due_date).days
-            amount = round(days_late * 0.5, 2)  # 50 cents/day
 
-            await client.create_fine(
-                fine_id=fine_id,
-                member_id=member_id,
-                loan_id=loan_id,
-                amount=amount,
-                assessed_at=return_date,
-                paid=False,
-                paid_at=None,
-            )
-            fine_id += 1
+        if loan:
+            loan_ids.append(i)
 
-        loan_id += 1
+            if status == LoanStatus.OVERDUE and random.random() < fine_probability:
+                days_overdue = (current_date - due_date).days
+                amount = days_overdue * 0.50
+                paid = random.random() < 0.3
+
+                assessed_at = due_date + timedelta(days=1)
+                paid_at = (
+                    assessed_at + timedelta(days=random.randint(1, 30))
+                    if paid
+                    else None
+                )
+
+                await client.create_fine(
+                    fine_id=fine_id,
+                    member_id=member_id,
+                    loan_id=i,
+                    amount=round(amount, 2),
+                    assessed_at=assessed_at,
+                    paid=paid,
+                    paid_at=paid_at,
+                )
+                fine_id += 1
+
+    logger.info(f"Created {len(loan_ids)} loans and {fine_id - 1} fines")
+
+    logger.info("Synthetic data generation complete!")

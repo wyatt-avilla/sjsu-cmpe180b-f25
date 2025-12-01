@@ -18,12 +18,12 @@ async def main(argv: Sequence[str] | None = None) -> None:
 
     logging.getLogger(__name__).info(f"Utilizing log level '{cli_args.log_level}'")
 
+    client = Client(cli_args.database_url)
+
     if cli_args.populate_db:
         logging.getLogger(__name__).info("Populating database...")
-        await populate_db(cli_args.database_url)
+        await populate_db(client)
         logging.getLogger(__name__).info("Database population complete.")
-
-    client = Client(cli_args.database_url)
 
     if cli_args.request_loan is not None:
         copy_id, member_id = cli_args.request_loan
