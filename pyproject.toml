@@ -15,7 +15,10 @@ authors = [
 ]
 
 dependencies = [
+ "asyncmy>=0.2.10",
  "asyncpg>=0.31.0",
+ "cryptography>=46.0.3",
+ "greenlet>=3.2.4",
  "sqlalchemy>=2.0.44",
 ]
 
