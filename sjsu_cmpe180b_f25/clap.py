@@ -24,6 +24,7 @@ class CommandLineArguments:
     copies_on_loans: int | None = None
     genre_fine_stats: bool = False
 
+
 def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     parser = argparse.ArgumentParser(
         description="CMPE-180b Project Command Line Interface",
@@ -108,7 +109,6 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         request_loan=tuple(args.request_loan) if args.request_loan else None,
         end_loan=args.end_loan,
         pay_fine=args.pay_fine,
-
         top_books=args.top_books,
         overdue_members=args.overdue_members,
         unpaid_fines_members=args.unpaid_fines_members,

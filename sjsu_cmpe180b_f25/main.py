@@ -18,7 +18,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
 
     logger = logging.getLogger(__name__)
     logger.info(f"Utilizing log level '{cli_args.log_level}'")
-    
+
     client = Client(cli_args.database_url)
 
     if cli_args.populate_db:
@@ -33,9 +33,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
         )
         loan = await client.request_loan(copy_id=copy_id, member_id=member_id)
         if loan is not None:
-            logger.info(
-                f"Loan requested successfully with loan ID '{loan.loan_id}'."
-            )
+            logger.info(f"Loan requested successfully with loan ID '{loan.loan_id}'.")
         else:
             logger.error("Loan request failed.")
             sys.exit(1)
@@ -76,7 +74,9 @@ async def main(argv: Sequence[str] | None = None) -> None:
         logger.info("Fetching members with currently overdue loans...")
         rows = await client.get_overdue_members()
         print("\nMembers with currently overdue loans:\n")
-        print(f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Overdue':>7}  {'Earliest Due':>12}")
+        print(
+            f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Overdue':>7}  {'Earliest Due':>12}"
+        )
         print("-" * 90)
         for member_id, name, email, overdue_count, earliest_due in rows:
             earliest_str = earliest_due.strftime("%Y-%m-%d")
@@ -88,12 +88,12 @@ async def main(argv: Sequence[str] | None = None) -> None:
     # Members with highest unpaid fines (with optional minimum)
     if cli_args.unpaid_fines_members is not None:
         min_total = cli_args.unpaid_fines_members
-        logger.info(
-            f"Fetching members with unpaid fines >= {min_total:.2f}..."
-        )
+        logger.info(f"Fetching members with unpaid fines >= {min_total:.2f}...")
         rows = await client.get_members_with_unpaid_fines(min_total=min_total)
         print(f"\nMembers with unpaid fines >= {min_total:.2f}:\n")
-        print(f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Total Unpaid':>12}  {'Count':>5}")
+        print(
+            f"{'ID':>5}  {'Name':25}  {'Email':30}  {'Total Unpaid':>12}  {'Count':>5}"
+        )
         print("-" * 95)
         for member_id, name, email, total_unpaid, fine_count in rows:
             print(
@@ -107,9 +107,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
         logger.info(f"Fetching top {limit} books by utilization...")
         rows = await client.get_collection_utilization(limit=limit)
         print(f"\nTop {limit} books by copy utilization:\n")
-        print(
-            f"{'ID':>5}  {'Title':40}  {'Copies':>6}  {'On Loan':>7}  {'Util %':>7}"
-        )
+        print(f"{'ID':>5}  {'Title':40}  {'Copies':>6}  {'On Loan':>7}  {'Util %':>7}")
         print("-" * 80)
         for book_id, title, total_copies, copies_on_loan, util in rows:
             util_val = util if util is not None else 0.0
@@ -128,6 +126,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
         for genre, fine_count, total_fines in rows:
             genre_name = genre or "UNKNOWN"
             print(f"{genre_name[:20]:20}  {fine_count:10}  {total_fines:12.2f}")
+
 
 def cli(argv: Sequence[str] | None = None) -> None:
     asyncio.run(main(argv))
