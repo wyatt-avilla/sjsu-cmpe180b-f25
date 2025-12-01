@@ -31,7 +31,7 @@ async def populate_db(
         fine_probability: Probability that an overdue loan has a fine (0.0 to 1.0)
     """
 
-    client.create_tables()
+    await client.create_tables()
     logger = logging.getLogger(__name__)
 
     logger.info("Creating authors...")
