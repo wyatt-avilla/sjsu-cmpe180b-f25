@@ -63,3 +63,10 @@ uv pip install .
 
 > [!NOTE]
 Remove the `uv` prefix from the previous command to use `pip` instead.
+
+## Testing
+
+Tests are done with [`pytest`](https://github.com/pytest-dev/pytest). They are
+defined in the `tests/` directory and ran on pushes/pull requests to `main`. You
+can view the latest status
+[here](https://github.com/wyatt-avilla/sjsu-cmpe180b-f25/actions/workflows/pytest.yml).
