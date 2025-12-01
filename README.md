@@ -46,3 +46,20 @@ or, run from the GitHub URL directly with:
 ```sh
 nix run github:wyatt-avilla/sjsu-cmpe180b-f25
 ```
+
+## Dependencies
+
+Dependencies are specified in the `[project.dependencies]` table within
+[`pyproject.toml`](./pyproject.toml). Locking each dependency to a specific
+version is done with `uv lock` and reflected in `uv.lock`.
+
+### Installing Dependencies
+
+Inside the cloned repo, and ideally within a virtual environment run:
+
+```sh
+uv pip install .
+```
+
+> [!NOTE]
+Remove the `uv` prefix from the previous command to use `pip` instead.
