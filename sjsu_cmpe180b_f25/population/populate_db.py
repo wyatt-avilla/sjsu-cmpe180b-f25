@@ -2,8 +2,8 @@ import logging
 import random
 from datetime import datetime, timedelta
 
-from .client import Client
-from .models import CopyStatus, LoanStatus
+from sjsu_cmpe180b_f25.client import Client
+from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus
 
 
 async def populate_db(

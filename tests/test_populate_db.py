@@ -1,7 +1,7 @@
 import pytest
 
 from sjsu_cmpe180b_f25.client import Client
-from sjsu_cmpe180b_f25.populate_db import populate_db
+from sjsu_cmpe180b_f25.population import populate_db
 
 
 @pytest.mark.asyncio

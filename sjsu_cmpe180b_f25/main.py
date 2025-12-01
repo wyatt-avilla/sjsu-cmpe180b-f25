@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 from .clap import parse_args
 from .client import Client
-from .populate_db import populate_db
+from .population import populate_db
 
 
 async def main(argv: Sequence[str] | None = None) -> None:
