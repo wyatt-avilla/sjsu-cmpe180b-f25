@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from sqlalchemy import select
+from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -292,3 +293,145 @@ class Client:
                 )
                 await db.rollback()
                 return False
+
+    async def get_top_books(
+        self, limit: int = 10
+    ) -> Sequence[Row[tuple[int, str, int]]]:
+        """Return the top N most loaned books"""
+        async with self.__session_factory() as db:
+            stmt = (
+                select(
+                    Book.book_id,
+                    Book.title,
+                    func.count(Loan.loan_id).label("total_loans"),
+                )
+                .join(Copy, Copy.book_id == Book.book_id)
+                .join(Loan, Loan.copy_id == Copy.copy_id)
+                .group_by(Book.book_id, Book.title)
+                .order_by(desc("total_loans"), Book.title)
+                .limit(limit)
+            )
+
+            result = await db.execute(stmt)
+            return result.all()
+
+    async def get_overdue_members(
+        self,
+    ) -> Sequence[Row[tuple[int, str, str, int, datetime]]]:
+        """Return members who currently have overdue loans"""
+        async with self.__session_factory() as db:
+            stmt = (
+                select(
+                    Member.member_id,
+                    Member.name,
+                    Member.email,
+                    func.count(Loan.loan_id).label("overdue_count"),
+                    func.min(Loan.due_date).label("earliest_due_date"),
+                )
+                .join(Loan, Loan.member_id == Member.member_id)
+                .where(
+                    Loan.status == LoanStatus.ACTIVE,
+                    Loan.return_date.is_(None),
+                    Loan.due_date < datetime.utcnow(),
+                )
+                .group_by(
+                    Member.member_id,
+                    Member.name,
+                    Member.email,
+                )
+                .order_by(
+                    desc("overdue_count"),
+                    func.min(Loan.due_date),
+                )
+            )
+
+            result = await db.execute(stmt)
+            return result.all()
+
+    async def get_unpaid_fines_members(
+        self,
+        min_total: float = 0.0,
+    ) -> Sequence[Row[tuple[int, str, str, float, int]]]:
+        """Return members with unpaid fines with optional min threshold"""
+        async with self.__session_factory() as db:
+            total_unpaid = func.sum(Fine.amount).label("total_unpaid")
+            fine_count = func.count(Fine.fine_id).label("unpaid_fine_count")
+
+            stmt = (
+                select(
+                    Member.member_id,
+                    Member.name,
+                    Member.email,
+                    total_unpaid,
+                    fine_count,
+                )
+                .join(Fine, Fine.member_id == Member.member_id)
+                .where(Fine.paid.is_(False))
+                .group_by(
+                    Member.member_id,
+                    Member.name,
+                    Member.email,
+                )
+            )
+
+            if min_total > 0:
+                stmt = stmt.having(total_unpaid >= min_total)
+
+            stmt = stmt.order_by(desc("total_unpaid"), desc("unpaid_fine_count"))
+
+            result = await db.execute(stmt)
+            return result.all()
+
+    async def get_copies_on_loan(
+        self,
+        limit: int = 20,
+    ) -> Sequence[Row[tuple[int, str, int, int, float]]]:
+        """Return loan stats per book title"""
+        async with self.__session_factory() as db:
+            total_copies = func.count(Copy.copy_id)
+            copies_on_loan = func.sum(
+                case((Copy.status == CopyStatus.ON_LOAN, 1), else_=0)
+            )
+
+            stmt = (
+                select(
+                    Book.book_id,
+                    Book.title,
+                    type_coerce(total_copies, Integer).label("total_copies"),
+                    type_coerce(copies_on_loan, Integer).label("copies_on_loan"),
+                    type_coerce(
+                        copies_on_loan * 100.0 / func.nullif(total_copies, 0), Float
+                    ).label("utilization_percent"),
+                )
+                .join(Copy, Copy.book_id == Book.book_id)
+                .group_by(Book.book_id, Book.title)
+                .order_by(
+                    desc("utilization_percent"),
+                    desc("total_copies"),
+                )
+                .limit(limit)
+            )
+
+            result = await db.execute(stmt)
+            return result.all()
+
+    async def get_genre_fine_statistics(
+        self,
+    ) -> Sequence[Row[tuple[str | None, int, float]]]:
+        """Return fine stats aggregated by book genre"""
+        async with self.__session_factory() as db:
+            stmt = (
+                select(
+                    Book.genre,
+                    func.count(Fine.fine_id).label("fine_count"),
+                    func.sum(Fine.amount).label("total_fines"),
+                )
+                .join(Loan, Loan.loan_id == Fine.loan_id)
+                .join(Copy, Copy.copy_id == Loan.copy_id)
+                .join(Book, Book.book_id == Copy.book_id)
+                .group_by(Book.genre)
+                .order_by(desc("total_fines"))
+            )
+
+            result = await db.execute(stmt)
+            return result.all()
