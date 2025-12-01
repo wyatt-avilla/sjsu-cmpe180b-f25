@@ -23,7 +23,9 @@ class CommandLineArguments:
     unpaid_fines_members: float | None = None
     copies_on_loans: int | None = None
     genre_fine_stats: bool = False
-
+    create_indexes: bool = False
+    drop_indexes: bool = False
+    explain: str | None = None
 
 def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     parser = argparse.ArgumentParser(
@@ -100,6 +102,24 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         help="Show fine statistics grouped by book genre.",
     )
 
+    parser.add_argument(
+        "--create-indexes",
+        action="store_true",
+        help="Create indexes that optimize the complex queries.",
+    )
+
+    parser.add_argument(
+        "--drop-indexes", 
+        action="store_true", 
+        help="Drop all created indexes."
+    )
+
+    parser.add_argument(
+        "--explain",
+        choices=["top_books", "overdue_members", "unpaid_fines"],
+        help="Run EXPLAIN ANALYZE on a complex query."
+    )
+
     args = parser.parse_args(argv)
 
     return CommandLineArguments(
@@ -114,4 +134,7 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         unpaid_fines_members=args.unpaid_fines_members,
         copies_on_loans=args.copies_on_loans,
         genre_fine_stats=args.genre_fine_stats,
+        create_indexes=args.create_indexes,
+        drop_indexes=args.drop_indexes,
+        explain=args.explain,
     )
