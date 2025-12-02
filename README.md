@@ -14,7 +14,44 @@ For development environment setup instructions see
 
 ## Execution Instructions
 
-### With `uv`
+The following command line options are available:
+
+```txt
+uv run app --help
+usage: app [-h] [--database-url DATABASE_URL] [--populate-db]
+           [--log-level {critical,error,warning,info,debug}] [--request-loan COPY_ID MEMBER_ID]
+           [--end-loan LOAN_ID] [--pay-fine FINE_ID] [--top-books N] [--overdue-members]
+           [--unpaid-fines-members AMOUNT] [--copies-on-loans N] [--genre-fine-stats]
+           [--create-indexes] [--drop-indexes]
+           [--explain {top_books,overdue_members,unpaid_fines}]
+
+CMPE-180b Project Command Line Interface
+
+options:
+  -h, --help            show this help message and exit
+  --database-url DATABASE_URL
+                        URL for the database. Takes priority over the `DATABASE_URL` environment
+                        variable. Required if DATABASE_URL is not set.
+  --populate-db         Populate the database with initial data.
+  --log-level {critical,error,warning,info,debug}
+                        Logging verbosity. Defaults to info.
+  --request-loan COPY_ID MEMBER_ID
+                        Create a new loan for the specified copy ID and member ID.
+  --end-loan LOAN_ID    End the loan with the specified loan ID.
+  --pay-fine FINE_ID    Pay the fine with the specified ID.
+  --top-books N         Show the top N most loaned books.
+  --overdue-members     List members who currently have overdue loans.
+  --unpaid-fines-members AMOUNT
+                        List members whose unpaid fines total with optional minimum amount.
+  --copies-on-loans N   Show the top N books based on copies on loans.
+  --genre-fine-stats    Show fine statistics grouped by book genre.
+  --create-indexes      Create indexes that optimize the complex queries.
+  --drop-indexes        Drop all created indexes.
+  --explain {top_books,overdue_members,unpaid_fines}
+                        Run EXPLAIN ANALYZE on a complex query.
+```
+
+### Running With `uv`
 
 Inside the cloned repo, run:
 
@@ -22,7 +59,7 @@ Inside the cloned repo, run:
 uv run app
 ```
 
-### With `pip` and `venv`
+### Running With `pip` and `venv`
 
 Inside the cloned repo, run:
 
@@ -33,7 +70,7 @@ pip install .
 python -m sjsu_cmpe180b_f25.main
 ```
 
-### With Nix
+### Running With Nix
 
 Inside the cloned repo, run:
 

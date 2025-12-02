@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Sequence
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import TypeVar
 
 from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
@@ -139,17 +139,16 @@ class Client:
     async def create_loan(
         self,
         *,
-        loan_id: int,
         copy_id: int,
         member_id: int,
         loan_date: datetime,
         due_date: datetime,
         status: LoanStatus,
         return_date: datetime | None = None,
+        loan_id: int | None = None,
     ) -> Loan | None:
         """Creates a loan, returning the loan or None if it exists."""
         loan = Loan(
-            loan_id=loan_id,
             copy_id=copy_id,
             member_id=member_id,
             loan_date=loan_date,
@@ -200,7 +199,7 @@ class Client:
                 )
                 return None
 
-            now = datetime.now(tz=UTC)
+            now = datetime.now(tz=None)
             loan = Loan(
                 copy_id=copy_id,
                 member_id=member_id,
@@ -251,7 +250,7 @@ class Client:
                 )
                 return False
 
-            loan.return_date = datetime.now(tz=UTC)
+            loan.return_date = datetime.now(tz=None)
             loan.status = LoanStatus.RETURNED
             copy.status = CopyStatus.AVAILABLE
 
@@ -283,7 +282,7 @@ class Client:
                 return False
 
             fine.paid = True
-            fine.paid_at = datetime.now(tz=UTC)
+            fine.paid_at = datetime.now(tz=None)
 
             try:
                 await db.commit()
@@ -333,7 +332,7 @@ class Client:
                 .where(
                     Loan.status == LoanStatus.ACTIVE,
                     Loan.return_date.is_(None),
-                    Loan.due_date < datetime.utcnow(),
+                    Loan.due_date < datetime.now(tz=None),
                 )
                 .group_by(
                     Member.member_id,
