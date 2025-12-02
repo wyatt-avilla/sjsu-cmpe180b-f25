@@ -5,8 +5,6 @@ import logging
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
-logger = logging.getLogger(__name__)
-
 EXPLAIN_QUERIES = {
     "top_books": """
         EXPLAIN ANALYZE
@@ -50,7 +48,9 @@ async def run_explain(database_url: str, query_name: str) -> None:
     if query_name not in EXPLAIN_QUERIES:
         raise ValueError(f"Unknown query name '{query_name}'")
 
-    logging.info(f"Running EXPLAIN ANALYZE for: {query_name}")
+    logger = logging.getLogger(__name__)
+
+    logger.info(f"Running EXPLAIN ANALYZE for: {query_name}")
 
     engine = create_async_engine(database_url, pool_pre_ping=True)
 
@@ -65,4 +65,4 @@ async def run_explain(database_url: str, query_name: str) -> None:
         plan,
         "======================================",
     ]
-    logging.info("\n".join(lines))
+    logger.info("\n".join(lines))
