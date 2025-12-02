@@ -60,6 +60,9 @@ async def run_explain(database_url: str, query_name: str) -> None:
 
     await engine.dispose()
 
-    logger.info("\n===== EXPLAIN ANALYZE plan =====")
-    logger.info(plan)
-    logger.info("================================\n")
+    lines = [
+        "\n======== EXPLAIN ANALYZE plan ========",
+        plan,
+        "======================================",
+    ]
+    logging.info("\n".join(lines))
