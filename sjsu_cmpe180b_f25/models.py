@@ -61,7 +61,11 @@ class Copy(Base):
 
 class Loan(Base):
     __tablename__ = "loans"
-    loan_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    loan_id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
     copy_id: Mapped[int] = mapped_column(ForeignKey("copies.copy_id"), nullable=False)
     member_id: Mapped[int] = mapped_column(
         ForeignKey("members.member_id"), nullable=False
