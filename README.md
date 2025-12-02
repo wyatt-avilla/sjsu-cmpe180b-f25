@@ -17,21 +17,23 @@ For development environment setup instructions see
 The following command line options are available:
 
 ```txt
-uv run app --help
+$ uv run app --help
 usage: app [-h] [--database-url DATABASE_URL] [--populate-db]
-           [--log-level {critical,error,warning,info,debug}] [--request-loan COPY_ID MEMBER_ID]
-           [--end-loan LOAN_ID] [--pay-fine FINE_ID] [--top-books N] [--overdue-members]
-           [--unpaid-fines-members AMOUNT] [--copies-on-loans N] [--genre-fine-stats]
+           [--log-level {critical,error,warning,info,debug}]
+           [--request-loan COPY_ID MEMBER_ID] [--end-loan LOAN_ID] [--pay-fine FINE_ID]
+           [--top-books N] [--overdue-members] [--unpaid-fines-members AMOUNT]
+           [--copies-on-loans N] [--genre-fine-stats] [--member-history MEMBER_ID]
            [--create-indexes] [--drop-indexes]
-           [--explain {top_books,overdue_members,unpaid_fines}]
+           [--explain {top-books,overdue-members,unpaid-fines}]
+           [--explain-member-history EXPLAIN_MEMBER_HISTORY]
 
 CMPE-180b Project Command Line Interface
 
 options:
   -h, --help            show this help message and exit
   --database-url DATABASE_URL
-                        URL for the database. Takes priority over the `DATABASE_URL` environment
-                        variable. Required if DATABASE_URL is not set.
+                        URL for the database. Takes priority over the `DATABASE_URL`
+                        environment variable. Required if DATABASE_URL is not set.
   --populate-db         Populate the database with initial data.
   --log-level {critical,error,warning,info,debug}
                         Logging verbosity. Defaults to info.
@@ -45,10 +47,14 @@ options:
                         List members whose unpaid fines total with optional minimum amount.
   --copies-on-loans N   Show the top N books based on copies on loans.
   --genre-fine-stats    Show fine statistics grouped by book genre.
+  --member-history MEMBER_ID
+                        Show loan history for the given member_id
   --create-indexes      Create indexes that optimize the complex queries.
   --drop-indexes        Drop all created indexes.
-  --explain {top_books,overdue_members,unpaid_fines}
+  --explain {top-books,overdue-members,unpaid-fines}
                         Run EXPLAIN ANALYZE on a complex query.
+  --explain-member-history EXPLAIN_MEMBER_HISTORY
+                        Run EXPLAIN ANALYZE loan history query for the given member_id
 ```
 
 ### Running With `uv`
