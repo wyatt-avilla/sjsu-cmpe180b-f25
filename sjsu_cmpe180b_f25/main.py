@@ -153,13 +153,17 @@ async def main(argv: Sequence[str] | None = None) -> None:
     if cli_args.member_history:
         member_id = cli_args.member_history
         rows = await client.get_member_history(member_id)
-        print(f"\nLoan history for Member {member_id}:\n")
-        print("LoanID  CopyID  LoanDate        DueDate         Status")
-        print("-------------------------------------------------------------")
-        for r in rows:
-            print(
+
+        lines = [
+            f"\nLoan history for Member {member_id}:\n",
+            "LoanID  CopyID  LoanDate        DueDate         Status",
+            "-------------------------------------------------------------",
+            "\n".join(
                 f"{r.loan_id:<7} {r.copy_id:<7} {r.loan_date}  {r.due_date}  {r.status}"
-            )
+                for r in rows
+            ),
+        ]
+        logger.info("\n".join(lines))
         return
 
     if cli_args.create_indexes:
