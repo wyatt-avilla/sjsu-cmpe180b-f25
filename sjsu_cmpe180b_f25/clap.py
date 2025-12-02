@@ -23,9 +23,11 @@ class CommandLineArguments:
     unpaid_fines_members: float | None = None
     copies_on_loans: int | None = None
     genre_fine_stats: bool = False
+    member_history: int | None = None
     create_indexes: bool = False
     drop_indexes: bool = False
     explain: str | None = None
+    explain_member_history: int | None = None
 
 
 def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
@@ -104,6 +106,14 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     )
 
     parser.add_argument(
+        "--member-history",
+        nargs=1,
+        type=int,
+        metavar="MEMBER_ID",
+        help="Show loan history for the given member_id"
+    )
+
+    parser.add_argument(
         "--create-indexes",
         action="store_true",
         help="Create indexes that optimize the complex queries.",
@@ -115,8 +125,14 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
 
     parser.add_argument(
         "--explain",
-        choices=["top_books", "overdue_members", "unpaid_fines"],
+        choices=["top-books", "overdue-members", "unpaid-fines"],
         help="Run EXPLAIN ANALYZE on a complex query.",
+    )
+
+    parser.add_argument(
+        "--explain-member-history",
+        type=int,
+        help="Run EXPLAIN ANALYZE loan history query for the given member_id"
     )
 
     args = parser.parse_args(argv)
@@ -133,7 +149,9 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         unpaid_fines_members=args.unpaid_fines_members,
         copies_on_loans=args.copies_on_loans,
         genre_fine_stats=args.genre_fine_stats,
+        member_history=args.member_history,
         create_indexes=args.create_indexes,
         drop_indexes=args.drop_indexes,
         explain=args.explain,
+        explain_member_history=args.explain_member_history,
     )
