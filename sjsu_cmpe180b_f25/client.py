@@ -435,3 +435,23 @@ class Client:
 
             result = await db.execute(stmt)
             return result.all()
+
+    async def get_member_history(
+        self, member_id: int, limit: int = 50
+    ) -> Sequence[Row[tuple[int, int, datetime, datetime, LoanStatus]]]:
+        """Return how many loans a member has, ordered by loan date"""
+        async with self.__engine.begin() as conn:
+            query = (
+                select(
+                    Loan.loan_id,
+                    Loan.copy_id,
+                    Loan.loan_date,
+                    Loan.due_date,
+                    Loan.status,
+                )
+                .where(Loan.member_id == member_id)
+                .order_by(Loan.loan_date.desc())
+                .limit(limit)
+            )
+            result = await conn.execute(query)
+            return result.fetchall()
