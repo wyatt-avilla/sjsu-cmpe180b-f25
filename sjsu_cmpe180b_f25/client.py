@@ -139,17 +139,16 @@ class Client:
     async def create_loan(
         self,
         *,
-        loan_id: int,
         copy_id: int,
         member_id: int,
         loan_date: datetime,
         due_date: datetime,
         status: LoanStatus,
         return_date: datetime | None = None,
+        loan_id: int | None = None,
     ) -> Loan | None:
         """Creates a loan, returning the loan or None if it exists."""
         loan = Loan(
-            loan_id=loan_id,
             copy_id=copy_id,
             member_id=member_id,
             loan_date=loan_date,

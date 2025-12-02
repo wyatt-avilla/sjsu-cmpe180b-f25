@@ -132,7 +132,6 @@ async def populate_db(
             loan_status = LoanStatus.ACTIVE
 
         loan = await client.create_loan(
-            loan_id=i,
             copy_id=copy_id,
             member_id=member_id,
             loan_date=loan_date,
