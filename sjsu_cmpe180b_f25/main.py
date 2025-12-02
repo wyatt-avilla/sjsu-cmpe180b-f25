@@ -178,7 +178,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
         member_id = cli_args.explain_member_history
         await run_explain(
             cli_args.database_url,
-            "member_history",
+            "member-history",
             member_id=member_id,
         )
         return
