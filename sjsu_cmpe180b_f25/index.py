@@ -10,20 +10,16 @@ INDEX_STATEMENTS: list[str] = [
     # Speeds up joins books -> copies -> loans
     "CREATE INDEX IF NOT EXISTS idx_copies_book_id ON copies (book_id)",
     "CREATE INDEX IF NOT EXISTS idx_loans_copy_id ON loans (copy_id)",
-
     # Complex Query 2 – Members with overdue loans
     # Helps filter by status and due_date when looking for overdue loans
     "CREATE INDEX IF NOT EXISTS idx_loans_status_due_date ON loans (status, due_date)",
     "CREATE INDEX IF NOT EXISTS idx_loans_member_id ON loans (member_id)",
-
     # Complex Query 3 – Members with large unpaid fines
     # Supports grouping and filtering by member on unpaid fines
     "CREATE INDEX IF NOT EXISTS idx_fines_member_id ON fines (member_id)",
-
     # Partial index - only unpaid fines, smaller & more selective
     "CREATE INDEX IF NOT EXISTS idx_fines_unpaid_member "
     "ON fines (member_id) WHERE paid = FALSE",
-
     # Index Query - How many loans a specifc member has
     "CREATE INDEX IF NOT EXISTS idx_loans_member_date "
     "ON loans (member_id, loan_date DESC);",
@@ -41,6 +37,7 @@ INDEX_NAMES = [
 
 logger = logging.getLogger(__name__)
 
+
 # Create indexes
 async def create_indexes(database_url: str) -> None:
     """Create indexes that optimize the complex queries"""
@@ -55,6 +52,7 @@ async def create_indexes(database_url: str) -> None:
     finally:
         await engine.dispose()
     logger.info("Index creation complete.")
+
 
 # Drop indexes
 async def drop_indexes(database_url: str) -> None:

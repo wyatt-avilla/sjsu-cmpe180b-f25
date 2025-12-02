@@ -110,7 +110,7 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
         nargs=1,
         type=int,
         metavar="MEMBER_ID",
-        help="Show loan history for the given member_id"
+        help="Show loan history for the given member_id",
     )
 
     parser.add_argument(
@@ -132,7 +132,7 @@ def parse_args(argv: Sequence[str] | None = None) -> CommandLineArguments:
     parser.add_argument(
         "--explain-member-history",
         type=int,
-        help="Run EXPLAIN ANALYZE loan history query for the given member_id"
+        help="Run EXPLAIN ANALYZE loan history query for the given member_id",
     )
 
     args = parser.parse_args(argv)

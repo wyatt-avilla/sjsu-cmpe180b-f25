@@ -157,7 +157,9 @@ async def main(argv: Sequence[str] | None = None) -> None:
         print("LoanID  CopyID  LoanDate        DueDate         Status")
         print("-------------------------------------------------------------")
         for r in rows:
-            print(f"{r.loan_id:<7} {r.copy_id:<7} {r.loan_date}  {r.due_date}  {r.status}")
+            print(
+                f"{r.loan_id:<7} {r.copy_id:<7} {r.loan_date}  {r.due_date}  {r.status}"
+            )
         return
 
     if cli_args.create_indexes:
@@ -167,7 +169,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
     if cli_args.drop_indexes:
         await drop_indexes(cli_args.database_url)
         return
-    
+
     if cli_args.explain_member_history is not None:
         member_id = cli_args.explain_member_history
         await run_explain(
@@ -180,6 +182,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
     if cli_args.explain:
         await run_explain(cli_args.database_url, cli_args.explain)
         return
+
 
 def cli(argv: Sequence[str] | None = None) -> None:
     asyncio.run(main(argv))

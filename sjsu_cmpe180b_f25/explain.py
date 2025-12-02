@@ -56,10 +56,11 @@ EXPLAIN_QUERIES = {
     """,
 }
 
+
 async def run_explain(
-        database_url: str, 
-        query_name: str,
-        **params: object,
+    database_url: str,
+    query_name: str,
+    **params: object,
 ) -> None:
     if query_name not in EXPLAIN_QUERIES:
         raise ValueError(f"Unknown query name '{query_name}'")

@@ -436,10 +436,7 @@ class Client:
             result = await db.execute(stmt)
             return result.all()
 
-    async def get_member_history(
-        self, 
-        member_id: int, 
-        limit: int = 50):
+    async def get_member_history(self, member_id: int, limit: int = 50):
         """Return how many loans a member has, ordered by loan date"""
         async with self.__engine.begin() as conn:
             query = (
@@ -448,7 +445,7 @@ class Client:
                     Loan.copy_id,
                     Loan.loan_date,
                     Loan.due_date,
-                    Loan.status
+                    Loan.status,
                 )
                 .where(Loan.member_id == member_id)
                 .order_by(Loan.loan_date.desc())
