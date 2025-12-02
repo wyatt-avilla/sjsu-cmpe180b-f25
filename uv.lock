@@ -249,6 +249,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "asyncpg" },
+    { name = "greenlet" },
     { name = "sqlalchemy" },
 ]
 
@@ -265,6 +266,7 @@ dev = [
 requires-dist = [
     { name = "aiosqlite", marker = "extra == 'dev'", specifier = ">=0.21.0" },
     { name = "asyncpg", specifier = ">=0.31.0" },
+    { name = "greenlet", specifier = ">=3.2.4" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1.3.0" },
