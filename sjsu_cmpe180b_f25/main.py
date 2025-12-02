@@ -151,7 +151,7 @@ async def main(argv: Sequence[str] | None = None) -> None:
 
     # How many loans a specific member has, ordered by date
     if cli_args.member_history:
-        member_id = cli_args.member_history[0]
+        member_id = cli_args.member_history
         rows = await client.get_member_history(member_id)
         print(f"\nLoan history for Member {member_id}:\n")
         print("LoanID  CopyID  LoanDate        DueDate         Status")
