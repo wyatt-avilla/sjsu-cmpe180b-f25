@@ -1,9 +1,10 @@
+import asyncio
 from datetime import datetime
 
 import pytest
 
 from sjsu_cmpe180b_f25.client import Client
-from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus
+from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus, Member
 
 
 @pytest.mark.asyncio
@@ -192,3 +193,21 @@ async def test_create_fine(test_client: Client) -> None:
     assert fine.assessed_at == now
     assert fine.paid is False
     assert fine.paid_at is None
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_member(test_client: Client) -> None:
+    """Test only a single attempt to create a member with the same ID succeeds."""
+
+    async def create_member_attempt() -> None | Member:
+        return await test_client.create_member(
+            member_id=1,
+            name="Concurrent User",
+            email="email@gmail.com",
+            joined_at=datetime.now(tz=None),
+        )
+
+    tasks = [create_member_attempt() for _ in range(5)]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
