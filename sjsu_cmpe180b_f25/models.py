@@ -66,7 +66,9 @@ class Loan(Base):
         index=True,
         autoincrement=True,
     )
-    copy_id: Mapped[int] = mapped_column(ForeignKey("copies.copy_id"), nullable=False)
+    copy_id: Mapped[int] = mapped_column(
+        ForeignKey("copies.copy_id"), nullable=False, unique=True
+    )
     member_id: Mapped[int] = mapped_column(
         ForeignKey("members.member_id"), nullable=False
     )
