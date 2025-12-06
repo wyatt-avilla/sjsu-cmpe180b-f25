@@ -211,3 +211,22 @@ async def test_concurrent_create_member(test_client: Client) -> None:
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
     assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_book(test_client: Client) -> None:
+    """Test only a single attempt to create a book with the same ID succeeds."""
+
+    async def create_book_attempt() -> None | object:
+        return await test_client.create_book(
+            book_id=1,
+            title="Concurrent Book",
+            isbn="123-4-56-789012-3",
+            published_year=2024,
+            genre="Fiction",
+        )
+
+    tasks = [create_book_attempt() for _ in range(5)]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
