@@ -265,3 +265,33 @@ async def test_concurrent_create_copy(test_client: Client) -> None:
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
     assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_loan(test_client: Client) -> None:
+    """Test only a single attempt to create a loan with the same ID succeeds."""
+
+    await test_client.create_book(book_id=1, title="Test Book")
+    await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
+    await test_client.create_member(
+        member_id=1,
+        name="Graham Perez",
+        email="email@gmail.email",
+        joined_at=datetime.now(tz=None),
+    )
+    now = datetime.now(tz=None)
+
+    async def create_loan_attempt() -> None | object:
+        return await test_client.create_loan(
+            loan_id=1,
+            copy_id=1,
+            member_id=1,
+            loan_date=now,
+            due_date=now,
+            return_date=None,
+            status=LoanStatus.ACTIVE,
+        )
+
+    tasks = [create_loan_attempt() for _ in range(5)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
