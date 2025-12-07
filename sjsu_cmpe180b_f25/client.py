@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from sqlalchemy import Float, Integer, Row, case, desc, func, select, text, type_coerce
+from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
