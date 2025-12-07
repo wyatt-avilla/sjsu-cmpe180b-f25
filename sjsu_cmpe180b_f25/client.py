@@ -5,7 +5,17 @@ from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
+from sqlalchemy import (
+    Float,
+    Integer,
+    Row,
+    case,
+    desc,
+    func,
+    select,
+    type_coerce,
+    update,
+)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -228,8 +238,6 @@ class Client:
     ) -> bool:
         """Ends a loan, returning True if successful, False otherwise."""
         async with self.__session_factory() as db:
-            from sqlalchemy import update
-
             result = await db.execute(
                 update(Loan)
                 .where(
@@ -271,8 +279,6 @@ class Client:
         fine_id: int,
     ) -> bool:
         """Pays a fine, returning True if successful, False otherwise."""
-        from sqlalchemy import update
-
         async with self.__session_factory() as db:
             result = await db.execute(
                 update(Fine)
