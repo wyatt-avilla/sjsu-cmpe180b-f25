@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import TypeVar
 
-from sqlalchemy import Float, Integer, Row, case, desc, func, select, type_coerce
+from sqlalchemy import Float, Integer, Row, case, desc, func, select, text, type_coerce
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -228,31 +228,32 @@ class Client:
     ) -> bool:
         """Ends a loan, returning True if successful, False otherwise."""
         async with self.__session_factory() as db:
-            loan_result = await db.execute(
-                select(Loan).where(Loan.loan_id == loan_id).with_for_update()
-            )
-            loan = loan_result.scalar_one_or_none()
+            from sqlalchemy import update
 
-            if not loan or loan.status != LoanStatus.ACTIVE:
+            result = await db.execute(
+                update(Loan)
+                .where(
+                    Loan.loan_id == loan_id,
+                    Loan.status == LoanStatus.ACTIVE,
+                )
+                .values(return_date=datetime.now(tz=None), status=LoanStatus.RETURNED)
+                .returning(Loan.copy_id)
+            )
+
+            row = result.first()
+            if not row:
                 logging.getLogger(__name__).warning(
                     f"Loan '{loan_id}' is not active and cannot be ended."
                 )
                 return False
 
-            copy_result = await db.execute(
-                select(Copy).where(Copy.copy_id == loan.copy_id).with_for_update()
+            copy_id = row[0]
+
+            await db.execute(
+                update(Copy)
+                .where(Copy.copy_id == copy_id)
+                .values(status=CopyStatus.AVAILABLE)
             )
-            copy = copy_result.scalar_one_or_none()
-
-            if not copy:
-                logging.getLogger(__name__).error(
-                    f"Copy '{loan.copy_id}' associated with loan '{loan_id}' not found."
-                )
-                return False
-
-            loan.return_date = datetime.now(tz=None)
-            loan.status = LoanStatus.RETURNED
-            copy.status = CopyStatus.AVAILABLE
 
             try:
                 await db.commit()
