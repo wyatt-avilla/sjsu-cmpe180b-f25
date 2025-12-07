@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 import pytest
@@ -43,3 +44,22 @@ async def test_request_loan_unavailable_copy(test_client: Client) -> None:
     loan = await test_client.request_loan(copy_id=1, member_id=1)
 
     assert loan is None
+
+
+@pytest.mark.asyncio
+async def test_concurrent_request_loan(test_client: Client) -> None:
+    """Test that concurrent loan requests for the same copy are handled properly."""
+
+    await test_client.create_book(book_id=1, title="Test Book")
+    await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
+    await test_client.create_member(
+        member_id=1,
+        name="Concurrent Member",
+        email="member@gmail.com",
+        joined_at=datetime.now(tz=None),
+    )
+
+    tasks = [test_client.request_loan(copy_id=1, member_id=1) for _ in range(5)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    successful_loans = [res for res in results if res is not None]
+    assert len(successful_loans) == 1
