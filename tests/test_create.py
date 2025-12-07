@@ -1,9 +1,10 @@
+import asyncio
 from datetime import datetime
 
 import pytest
 
 from sjsu_cmpe180b_f25.client import Client
-from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus
+from sjsu_cmpe180b_f25.models import CopyStatus, LoanStatus, Member
 
 
 @pytest.mark.asyncio
@@ -192,3 +193,151 @@ async def test_create_fine(test_client: Client) -> None:
     assert fine.assessed_at == now
     assert fine.paid is False
     assert fine.paid_at is None
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_member(test_client: Client) -> None:
+    """Test only a single attempt to create a member with the same ID succeeds."""
+
+    async def create_member_attempt() -> None | Member:
+        return await test_client.create_member(
+            member_id=1,
+            name="Concurrent User",
+            email="email@gmail.com",
+            joined_at=datetime.now(tz=None),
+        )
+
+    tasks = [create_member_attempt() for _ in range(5)]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_book(test_client: Client) -> None:
+    """Test only a single attempt to create a book with the same ID succeeds."""
+
+    async def create_book_attempt() -> None | object:
+        return await test_client.create_book(
+            book_id=1,
+            title="Concurrent Book",
+            isbn="123-4-56-789012-3",
+            published_year=2024,
+            genre="Fiction",
+        )
+
+    tasks = [create_book_attempt() for _ in range(5)]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_author(test_client: Client) -> None:
+    """Test only a single attempt to create an author with the same ID succeeds."""
+
+    async def create_author_attempt() -> None | object:
+        return await test_client.create_author(
+            id=1,
+            name="Concurrent Author",
+        )
+
+    tasks = [create_author_attempt() for _ in range(5)]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_copy(test_client: Client) -> None:
+    """Test only a single attempt to create a copy with the same ID succeeds."""
+
+    await test_client.create_book(book_id=1, title="Test Book")
+
+    async def create_copy_attempt() -> None | object:
+        return await test_client.create_copy(
+            copy_id=1,
+            book_id=1,
+            status=CopyStatus.AVAILABLE,
+        )
+
+    tasks = [create_copy_attempt() for _ in range(5)]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_loan(test_client: Client) -> None:
+    """Test only a single attempt to create a loan with the same ID succeeds."""
+
+    await test_client.create_book(book_id=1, title="Test Book")
+    await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
+    await test_client.create_member(
+        member_id=1,
+        name="Graham Perez",
+        email="email@gmail.email",
+        joined_at=datetime.now(tz=None),
+    )
+    now = datetime.now(tz=None)
+
+    async def create_loan_attempt() -> None | object:
+        return await test_client.create_loan(
+            loan_id=1,
+            copy_id=1,
+            member_id=1,
+            loan_date=now,
+            due_date=now,
+            return_date=None,
+            status=LoanStatus.ACTIVE,
+        )
+
+    tasks = [create_loan_attempt() for _ in range(5)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_create_fine(test_client: Client) -> None:
+    """Test only a single attempt to create a fine with the same ID succeeds."""
+
+    now = datetime.now(tz=None)
+
+    member = await test_client.create_member(
+        member_id=1,
+        name="Test Name",
+        email="email@gmail.com",
+        joined_at=now,
+    )
+    assert member is not None
+    copy = await test_client.create_copy(
+        copy_id=1,
+        book_id=1,
+        status=CopyStatus.AVAILABLE,
+    )
+    assert copy is not None
+    loan = await test_client.create_loan(
+        loan_id=1,
+        copy_id=1,
+        member_id=1,
+        loan_date=now,
+        due_date=now,
+        return_date=None,
+        status=LoanStatus.ACTIVE,
+    )
+    assert loan is not None
+
+    async def create_fine_attempt() -> None | object:
+        return await test_client.create_fine(
+            fine_id=1,
+            member_id=1,
+            loan_id=1,
+            amount=10.0,
+            assessed_at=now,
+            paid=False,
+            paid_at=None,
+        )
+
+    tasks = [create_fine_attempt() for _ in range(5)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is not None]) == 1
