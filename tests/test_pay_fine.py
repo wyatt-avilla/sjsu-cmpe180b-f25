@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 import pytest
@@ -68,3 +69,35 @@ async def test_pay_fine_already_paid(test_client: Client) -> None:
     result = await test_client.pay_fine(fine_id=1)
 
     assert result is False
+
+
+@pytest.mark.asyncio
+async def test_concurrent_pay_fine(test_client: Client) -> None:
+    """Test that paying a fine concurrently is handled properly."""
+
+    now = datetime.now(tz=None)
+
+    await test_client.create_member(
+        member_id=1,
+        name="Concurrent Member",
+        email="email@email.com",
+        joined_at=now,
+    )
+    await test_client.create_book(book_id=1, title="Concurrent Book")
+    await test_client.create_copy(copy_id=1, book_id=1, status=CopyStatus.AVAILABLE)
+
+    loan = await test_client.request_loan(copy_id=1, member_id=1)
+    assert loan is not None
+
+    await test_client.create_fine(
+        fine_id=1,
+        member_id=1,
+        loan_id=loan.loan_id,
+        amount=15.00,
+        assessed_at=now,
+        paid=False,
+    )
+
+    tasks = [test_client.pay_fine(fine_id=1) for _ in range(5)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    assert len([res for res in results if res is True]) == 1

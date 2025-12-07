@@ -271,19 +271,25 @@ class Client:
         fine_id: int,
     ) -> bool:
         """Pays a fine, returning True if successful, False otherwise."""
-        async with self.__session_factory() as db:
-            stmt = select(Fine).where(Fine.fine_id == fine_id).with_for_update()
-            result = await db.execute(stmt)
-            fine = result.scalar_one_or_none()
+        from sqlalchemy import update
 
-            if not fine or fine.paid:
+        async with self.__session_factory() as db:
+            result = await db.execute(
+                update(Fine)
+                .where(
+                    Fine.fine_id == fine_id,
+                    Fine.paid == False,  # noqa: E712
+                )
+                .values(paid=True, paid_at=datetime.now(tz=None))
+                .returning(Fine.fine_id)
+            )
+
+            row = result.first()
+            if not row:
                 logging.getLogger(__name__).warning(
                     f"Fine '{fine_id}' is either not found or already paid."
                 )
                 return False
-
-            fine.paid = True
-            fine.paid_at = datetime.now(tz=None)
 
             try:
                 await db.commit()
