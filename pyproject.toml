@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sjsu-cmpe180b-f25"
-version = "0.1.0"
+version = "1.0.0"
 description = "A project for CMPE-180B at SJSU in Fall 2025"
 readme = "README.md"
 requires-python = ">=3.12"
